@@ -1,0 +1,121 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 头部区域 -->
+  <view class="header">
+    <view class="header-top">
+      <view class="logo-section">
+        <text class="logo-title">卡点</text>
+        <text class="logo-subtitle">让每一次消费都有记录</text>
+      </view>
+      <view class="search-icon" bindtap="showSearch">
+        <text class="iconfont icon-search"></text>
+      </view>
+    </view>
+    
+    <!-- 统计卡片 -->
+    <view class="stats-card">
+      <view class="stat-item">
+        <text class="stat-number">{{totalCards}}</text>
+        <text class="stat-label">总卡片</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-number">{{expiringSoon}}</text>
+        <text class="stat-label">即将到期</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-number">{{remainingCount}}</text>
+        <text class="stat-label">剩余次数</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 快捷操作区 -->
+  <view class="quick-actions">
+    <text class="section-title">快捷操作</text>
+    <view class="actions-grid">
+      <view class="action-item" bindtap="addCard">
+        <view class="action-icon action-add">+</view>
+        <text class="action-label">添加卡片</text>
+      </view>
+      <view class="action-item" bindtap="scanCard">
+        <view class="action-icon action-scan">📷</view>
+        <text class="action-label">拍照录入</text>
+      </view>
+      <view class="action-item" bindtap="setReminder">
+        <view class="action-icon action-remind">🔔</view>
+        <text class="action-label">提醒设置</text>
+      </view>
+      <view class="action-item" bindtap="viewStats">
+        <view class="action-icon action-stats">📊</view>
+        <text class="action-label">使用统计</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 卡片列表区 -->
+  <view class="cards-section">
+    <view class="section-header">
+      <text class="section-title">我的卡片</text>
+      <view class="filter-tabs">
+        <text class="filter-tab {{currentFilter === 'all' ? 'active' : ''}}" 
+              bindtap="filterCards" data-filter="all">全部</text>
+        <text class="filter-tab {{currentFilter === 'expiring' ? 'active' : ''}}" 
+              bindtap="filterCards" data-filter="expiring">即将到期</text>
+        <text class="filter-tab {{currentFilter === 'active' ? 'active' : ''}}" 
+              bindtap="filterCards" data-filter="active">使用中</text>
+      </view>
+    </view>
+    
+    <!-- 卡片列表 -->
+    <scroll-view class="cards-list" scroll-y="true" refresher-enabled="true" 
+                 refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+      <view wx:if="{{filteredCards.length === 0}}" class="empty-state">
+        <view class="empty-state-icon">📋</view>
+        <text class="empty-state-text">还没有套餐卡，点击下方按钮添加</text>
+      </view>
+      
+      <view wx:for="{{filteredCards}}" wx:key="id" 
+            class="card-item {{item.isExpiring ? 'card-warning' : ''}}">
+        <view class="card-header">
+          <view class="card-info">
+            <text class="card-name">{{item.name}}</text>
+            <text class="card-merchant">{{item.merchant}}</text>
+          </view>
+          <view class="card-category">{{item.category}}</view>
+        </view>
+        
+        <view class="card-progress">
+          <view class="progress-info">
+            <text class="usage-count">已用 {{item.usedCount}}/{{item.totalCount}} 次</text>
+            <text class="expire-info {{item.isExpiring ? 'expire-warning' : ''}}">
+              {{item.expireText}}
+            </text>
+          </view>
+          <view class="progress-bar">
+            <view class="progress-fill {{item.isExpiring ? 'warning' : ''}}" 
+                  style="width: {{item.progress}}%"></view>
+          </view>
+        </view>
+        
+        <view class="card-actions">
+          <button class="btn btn-primary btn-use" 
+                  bindtap="recordUsage" 
+                  data-id="{{item.id}}" 
+                  disabled="{{!item.canUse}}">
+            {{item.canUse ? '记录使用' : '已用完'}}
+          </button>
+          <button class="btn btn-secondary btn-detail" 
+                  bindtap="viewDetail" 
+                  data-id="{{item.id}}">
+            详情
+          </button>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  
+  <!-- 浮动添加按钮 -->
+  <view class="fab" bindtap="addCard">+</view>
+</view>

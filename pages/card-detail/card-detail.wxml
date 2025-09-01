@@ -1,0 +1,132 @@
+<!--pages/card-detail/card-detail.wxml-->
+<view class="container">
+  <!-- 卡片信息区域 -->
+  <view class="card-info-section">
+    <view class="card-header">
+      <view class="card-title">{{card.name}}</view>
+      <view class="card-merchant">{{card.merchant}}</view>
+      <view class="card-category">{{card.category}}</view>
+    </view>
+    
+    <view class="card-progress-section">
+      <view class="progress-info">
+        <text class="usage-text">已用 {{card.usedCount}}/{{card.totalCount}} 次</text>
+        <text class="remaining-text">剩余 {{card.remainingCount}} 次</text>
+      </view>
+      <view class="progress-bar">
+        <view class="progress-fill {{card.isExpiring ? 'warning' : ''}}" 
+              style="width: {{card.progress}}%"></view>
+      </view>
+    </view>
+    
+    <view class="card-status">
+      <text class="status-text {{card.statusColor}}">{{card.statusText}}</text>
+      <text class="expire-text {{card.isExpiring ? 'expire-warning' : ''}}">
+        {{card.expireText}}
+      </text>
+    </view>
+  </view>
+  
+  <!-- 操作按钮区域 -->
+  <view class="action-section">
+    <view class="action-buttons">
+      <button class="btn btn-primary btn-use" 
+              bindtap="recordUsage" 
+              disabled="{{!card.canUse}}">
+        {{card.canUse ? '记录使用' : '已用完'}}
+      </button>
+      <button class="btn btn-secondary btn-undo" 
+              bindtap="undoUsage" 
+              disabled="{{!card.canUndo}}">
+        撤销使用
+      </button>
+    </view>
+    
+    <view class="quick-actions">
+      <view class="action-item" bindtap="editCard">
+        <text class="action-icon">✏️</text>
+        <text class="action-label">编辑</text>
+      </view>
+      <view class="action-item" bindtap="shareCard">
+        <text class="action-icon">📤</text>
+        <text class="action-label">分享</text>
+      </view>
+      <view class="action-item" bindtap="deleteCard">
+        <text class="action-icon">🗑️</text>
+        <text class="action-label">删除</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 详细信息区域 -->
+  <view class="detail-section">
+    <view class="section-title">详细信息</view>
+    
+    <view class="detail-item">
+      <text class="detail-label">套餐名称</text>
+      <text class="detail-value">{{card.name}}</text>
+    </view>
+    
+    <view class="detail-item">
+      <text class="detail-label">商家名称</text>
+      <text class="detail-value">{{card.merchant}}</text>
+    </view>
+    
+    <view class="detail-item">
+      <text class="detail-label">分类</text>
+      <text class="detail-value">{{card.category}}</text>
+    </view>
+    
+    <view class="detail-item">
+      <text class="detail-label">总次数</text>
+      <text class="detail-value">{{card.totalCount}} 次</text>
+    </view>
+    
+    <view class="detail-item">
+      <text class="detail-label">已用次数</text>
+      <text class="detail-value">{{card.usedCount}} 次</text>
+    </view>
+    
+    <view class="detail-item">
+      <text class="detail-label">剩余次数</text>
+      <text class="detail-value">{{card.remainingCount}} 次</text>
+    </view>
+    
+    <view class="detail-item">
+      <text class="detail-label">购买日期</text>
+      <text class="detail-value">{{card.purchaseDateText}}</text>
+    </view>
+    
+    <view class="detail-item">
+      <text class="detail-label">到期日期</text>
+      <text class="detail-value {{card.isExpiring ? 'expire-warning' : ''}}">
+        {{card.expireDateText || '无到期日'}}
+      </text>
+    </view>
+    
+    <view class="detail-item" wx:if="{{card.notes}}">
+      <text class="detail-label">备注</text>
+      <text class="detail-value">{{card.notes}}</text>
+    </view>
+  </view>
+  
+  <!-- 使用记录区域 -->
+  <view class="usage-section">
+    <view class="section-header">
+      <text class="section-title">使用记录</text>
+      <text class="record-count">共 {{usageRecords.length}} 条记录</text>
+    </view>
+    
+    <view wx:if="{{usageRecords.length === 0}}" class="empty-records">
+      <text class="empty-text">暂无使用记录</text>
+    </view>
+    
+    <view wx:for="{{usageRecords}}" wx:key="id" class="usage-record">
+      <view class="record-info">
+        <text class="record-time">{{item.formattedDate}}</text>
+        <text class="record-relative">{{item.relativeTime}}</text>
+      </view>
+      <text wx:if="{{item.notes}}" class="record-notes">{{item.notes}}</text>
+    </view>
+  </view>
+</view>

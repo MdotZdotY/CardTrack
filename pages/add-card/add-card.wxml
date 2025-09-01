@@ -1,0 +1,119 @@
+<!--pages/add-card/add-card.wxml-->
+<view class="container">
+  <view class="form-container">
+    <view class="form-header">
+      <text class="form-title">添加套餐卡</text>
+      <text class="form-subtitle">记录您的套餐卡信息</text>
+    </view>
+    
+    <form bindsubmit="submitForm">
+      <!-- 套餐名称 -->
+      <view class="form-item">
+        <text class="form-label">套餐名称 *</text>
+        <input class="form-input" 
+               name="name" 
+               value="{{formData.name}}"
+               placeholder="请输入套餐名称"
+               bindinput="onInputChange"
+               data-field="name" />
+      </view>
+      
+      <!-- 商家名称 -->
+      <view class="form-item">
+        <text class="form-label">商家名称 *</text>
+        <input class="form-input" 
+               name="merchant" 
+               value="{{formData.merchant}}"
+               placeholder="请输入商家名称"
+               bindinput="onInputChange"
+               data-field="merchant" />
+      </view>
+      
+      <!-- 分类选择 -->
+      <view class="form-item">
+        <text class="form-label">分类</text>
+        <picker class="form-picker" 
+                range="{{categories}}" 
+                value="{{categoryIndex}}"
+                bindchange="onCategoryChange">
+          <view class="picker-text">
+            {{categories[categoryIndex]}}
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 总次数 -->
+      <view class="form-item">
+        <text class="form-label">总次数 *</text>
+        <input class="form-input" 
+               type="number"
+               name="totalCount" 
+               value="{{formData.totalCount}}"
+               placeholder="请输入总次数"
+               bindinput="onInputChange"
+               data-field="totalCount" />
+      </view>
+      
+      <!-- 已用次数 -->
+      <view class="form-item">
+        <text class="form-label">已用次数</text>
+        <input class="form-input" 
+               type="number"
+               name="usedCount" 
+               value="{{formData.usedCount}}"
+               placeholder="请输入已用次数"
+               bindinput="onInputChange"
+               data-field="usedCount" />
+      </view>
+      
+      <!-- 购买日期 -->
+      <view class="form-item">
+        <text class="form-label">购买日期</text>
+        <picker class="form-picker" 
+                mode="date" 
+                value="{{formData.purchaseDate}}"
+                bindchange="onDateChange"
+                data-field="purchaseDate">
+          <view class="picker-text">
+            {{formData.purchaseDate || '请选择购买日期'}}
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 到期日期 -->
+      <view class="form-item">
+        <text class="form-label">到期日期</text>
+        <picker class="form-picker" 
+                mode="date" 
+                value="{{formData.expireDate}}"
+                bindchange="onDateChange"
+                data-field="expireDate">
+          <view class="picker-text">
+            {{formData.expireDate || '请选择到期日期'}}
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 备注 -->
+      <view class="form-item">
+        <text class="form-label">备注</text>
+        <textarea class="form-textarea" 
+                  name="notes" 
+                  value="{{formData.notes}}"
+                  placeholder="请输入备注信息（可选）"
+                  bindinput="onInputChange"
+                  data-field="notes"
+                  maxlength="200" />
+        <text class="textarea-counter">{{formData.notes.length}}/200</text>
+      </view>
+      
+      <!-- 提交按钮 -->
+      <view class="form-actions">
+        <button class="btn btn-secondary" bindtap="cancel">取消</button>
+        <button class="btn btn-primary" form-type="submit" disabled="{{!isFormValid}}">
+          保存
+        </button>
+      </view>
+    </form>
+  </view>
+</view>

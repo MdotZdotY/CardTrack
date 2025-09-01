@@ -1,0 +1,370 @@
+/* pages/index/index.wxss */
+.container {
+  padding: 0;
+  min-height: 100vh;
+  background: #FFFBF0;
+}
+
+/* 头部区域 */
+.header {
+  background: linear-gradient(135deg, #FF8A00 0%, #FFB366 100%);
+  padding: 40rpx 40rpx 60rpx;
+  color: #FFFBF0;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-title {
+  font-size: 56rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.logo-subtitle {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+.search-icon {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 251, 240, 0.2);
+  border-radius: 16rpx;
+  font-size: 32rpx;
+}
+
+/* 统计卡片 */
+.stats-card {
+  background: rgba(255, 251, 240, 0.2);
+  backdrop-filter: blur(20rpx);
+  border-radius: 32rpx;
+  padding: 40rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2rpx solid rgba(255, 251, 240, 0.3);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #FFFBF0;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: rgba(255, 251, 240, 0.8);
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: rgba(255, 251, 240, 0.3);
+}
+
+/* 快捷操作区 */
+.quick-actions {
+  padding: 40rpx;
+  background: #FFFBF0;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #020100;
+  margin-bottom: 32rpx;
+  display: block;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30rpx;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 16rpx;
+  background: rgba(255, 138, 0, 0.05);
+  border-radius: 24rpx;
+  border: 2rpx solid rgba(255, 138, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.action-item:active {
+  transform: scale(0.95);
+  background: rgba(255, 138, 0, 0.1);
+}
+
+.action-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #FFFBF0;
+  margin-bottom: 16rpx;
+}
+
+.action-add {
+  background: linear-gradient(135deg, #FF8A00, #FFB366);
+}
+
+.action-scan {
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+}
+
+.action-remind {
+  background: linear-gradient(135deg, #FF9800, #FFB74D);
+}
+
+.action-stats {
+  background: linear-gradient(135deg, #2196F3, #42A5F5);
+}
+
+.action-label {
+  font-size: 24rpx;
+  color: #666666;
+  text-align: center;
+}
+
+/* 卡片列表区 */
+.cards-section {
+  padding: 0 40rpx 40rpx;
+  background: #FFFBF0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 16rpx;
+}
+
+.filter-tab {
+  padding: 12rpx 24rpx;
+  font-size: 26rpx;
+  color: #666666;
+  background: rgba(255, 138, 0, 0.1);
+  border-radius: 20rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.filter-tab.active {
+  color: #FF8A00;
+  background: rgba(255, 138, 0, 0.15);
+  border-color: rgba(255, 138, 0, 0.3);
+}
+
+.cards-list {
+  height: calc(100vh - 600rpx);
+}
+
+/* 卡片项目 */
+.card-item {
+  background: rgba(255, 251, 240, 0.8);
+  border-radius: 32rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 24rpx rgba(255, 138, 0, 0.08);
+  border: 2rpx solid rgba(255, 138, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-item:active {
+  transform: translateY(-2rpx);
+  box-shadow: 0 8rpx 32rpx rgba(255, 138, 0, 0.12);
+}
+
+.card-item.card-warning {
+  border-left: 8rpx solid #FF4444;
+  background: linear-gradient(90deg, #FFF0F0 0%, rgba(255, 251, 240, 0.9) 20%);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #020100;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.card-merchant {
+  font-size: 26rpx;
+  color: #666666;
+  display: block;
+}
+
+.card-category {
+  padding: 8rpx 16rpx;
+  font-size: 22rpx;
+  color: #FF8A00;
+  background: rgba(255, 138, 0, 0.1);
+  border-radius: 12rpx;
+  border: 1rpx solid rgba(255, 138, 0, 0.2);
+}
+
+.card-progress {
+  margin-bottom: 24rpx;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.usage-count {
+  font-size: 26rpx;
+  color: #020100;
+}
+
+.expire-info {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.expire-info.expire-warning {
+  color: #FF4444;
+  font-weight: bold;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12rpx;
+  background: rgba(255, 138, 0, 0.1);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF8A00, #FFB366);
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.warning {
+  background: linear-gradient(90deg, #FF4444, #FF6666);
+}
+
+.card-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn {
+  flex: 1;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+  padding: 20rpx 32rpx;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #FF8A00 0%, #FFB366 100%);
+  color: #FFFBF0;
+}
+
+.btn-primary:disabled {
+  background: #CCCCCC;
+  color: #999999;
+}
+
+.btn-secondary {
+  background: rgba(255, 138, 0, 0.1);
+  color: #FF8A00;
+  border: 2rpx solid rgba(255, 138, 0, 0.2);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  color: #999999;
+}
+
+.empty-state-icon {
+  font-size: 120rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 浮动按钮 */
+.fab {
+  position: fixed;
+  bottom: 60rpx;
+  right: 60rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF8A00, #FFB366);
+  color: #FFFBF0;
+  font-size: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16rpx 50rpx rgba(255, 138, 0, 0.3);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.fab:active {
+  transform: scale(0.9);
+  box-shadow: 0 8rpx 25rpx rgba(255, 138, 0, 0.4);
+}
