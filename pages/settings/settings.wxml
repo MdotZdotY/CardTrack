@@ -1,137 +1,164 @@
 <!--pages/settings/settings.wxml-->
 <view class="container">
-  <!-- 用户信息区域 -->
-  <view class="user-section">
-    <view class="user-avatar">
-      <text class="avatar-text">卡</text>
-    </view>
-    <view class="user-info">
-      <text class="user-name">卡点用户</text>
-      <text class="user-desc">让每一次消费都有记录</text>
-    </view>
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">设置</text>
+    <text class="page-subtitle">个性化您的使用体验</text>
   </view>
-  
-  <!-- 统计信息区域 -->
-  <view class="stats-section">
-    <view class="stats-grid">
-      <view class="stat-item">
-        <text class="stat-number">{{statistics.totalCards}}</text>
-        <text class="stat-label">总卡片</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-number">{{statistics.activeCards}}</text>
-        <text class="stat-label">使用中</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-number">{{statistics.expiringCards}}</text>
-        <text class="stat-label">即将到期</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-number">{{statistics.totalRemainingCount}}</text>
-        <text class="stat-label">剩余次数</text>
-      </view>
-    </view>
-  </view>
-  
-  <!-- 功能设置区域 -->
+
+  <!-- 功能设置 -->
   <view class="settings-section">
     <view class="section-title">功能设置</view>
     
-    <view class="setting-item" bindtap="setReminder">
-      <view class="setting-info">
+    <view class="setting-item" bindtap="goToReminderSettings">
+      <view class="setting-left">
         <text class="setting-icon">🔔</text>
-        <text class="setting-label">提醒设置</text>
-      </view>
-      <text class="setting-arrow">></text>
-    </view>
-    
-    <view class="setting-item" bindtap="backupData">
-      <view class="setting-info">
-        <text class="setting-icon">💾</text>
-        <text class="setting-label">数据备份</text>
-      </view>
-      <text class="setting-arrow">></text>
-    </view>
-    
-    <view class="setting-item" bindtap="restoreData">
-      <view class="setting-info">
-        <text class="setting-icon">📥</text>
-        <text class="setting-label">数据恢复</text>
-      </view>
-      <text class="setting-arrow">></text>
-    </view>
-    
-    <view class="setting-item" bindtap="exportData">
-      <view class="setting-info">
-        <text class="setting-icon">📤</text>
-        <text class="setting-label">导出数据</text>
+        <view class="setting-info">
+          <text class="setting-title">提醒设置</text>
+          <text class="setting-desc">设置到期提醒和使用频率提醒</text>
+        </view>
       </view>
       <text class="setting-arrow">></text>
     </view>
   </view>
-  
-  <!-- 应用信息区域 -->
-  <view class="settings-section">
-    <view class="section-title">应用信息</view>
-    
-    <view class="setting-item" bindtap="viewAbout">
-      <view class="setting-info">
-        <text class="setting-icon">ℹ️</text>
-        <text class="setting-label">关于卡点</text>
-      </view>
-      <text class="setting-arrow">></text>
-    </view>
-    
-    <view class="setting-item" bindtap="viewHelp">
-      <view class="setting-info">
-        <text class="setting-icon">❓</text>
-        <text class="setting-label">使用帮助</text>
-      </view>
-      <text class="setting-arrow">></text>
-    </view>
-    
-    <view class="setting-item" bindtap="viewFeedback">
-      <view class="setting-info">
-        <text class="setting-icon">💬</text>
-        <text class="setting-label">意见反馈</text>
-      </view>
-      <text class="setting-arrow">></text>
-    </view>
-    
-    <view class="setting-item">
-      <view class="setting-info">
-        <text class="setting-icon">📱</text>
-        <text class="setting-label">版本信息</text>
-      </view>
-      <text class="setting-value">v1.0.0</text>
-    </view>
-  </view>
-  
-  <!-- 数据管理区域 -->
+
+  <!-- 数据管理 -->
   <view class="settings-section">
     <view class="section-title">数据管理</view>
     
+    <view class="setting-item" bindtap="backupData">
+      <view class="setting-left">
+        <text class="setting-icon">💾</text>
+        <view class="setting-info">
+          <text class="setting-title">创建备份</text>
+          <text class="setting-desc">备份当前所有数据</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
+    <view class="setting-item" bindtap="restoreData">
+      <view class="setting-left">
+        <text class="setting-icon">📥</text>
+        <view class="setting-info">
+          <text class="setting-title">恢复数据</text>
+          <text class="setting-desc">从备份恢复数据</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
+    <view class="setting-item" bindtap="viewBackupList">
+      <view class="setting-left">
+        <text class="setting-icon">📋</text>
+        <view class="setting-info">
+          <text class="setting-title">备份列表</text>
+          <text class="setting-desc">查看所有备份信息</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
+    <view class="setting-item" bindtap="exportData">
+      <view class="setting-left">
+        <text class="setting-icon">📤</text>
+        <view class="setting-info">
+          <text class="setting-title">导出数据</text>
+          <text class="setting-desc">导出您的套餐卡数据</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
+    <view class="setting-item" bindtap="importData">
+      <view class="setting-left">
+        <text class="setting-icon">📥</text>
+        <view class="setting-info">
+          <text class="setting-title">导入数据</text>
+          <text class="setting-desc">从备份文件导入数据</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
+    <view class="setting-item" bindtap="optimizeStorage">
+      <view class="setting-left">
+        <text class="setting-icon">🔧</text>
+        <view class="setting-info">
+          <text class="setting-title">优化存储</text>
+          <text class="setting-desc">清理重复备份，压缩旧备份</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
     <view class="setting-item" bindtap="clearData">
-      <view class="setting-info">
+      <view class="setting-left">
         <text class="setting-icon">🗑️</text>
-        <text class="setting-label">清空数据</text>
+        <view class="setting-info">
+          <text class="setting-title">清空数据</text>
+          <text class="setting-desc">删除所有套餐卡数据</text>
+        </view>
       </view>
       <text class="setting-arrow">></text>
     </view>
-    
+
     <view class="setting-item" bindtap="resetApp">
-      <view class="setting-info">
+      <view class="setting-left">
         <text class="setting-icon">🔄</text>
-        <text class="setting-label">重置应用</text>
+        <view class="setting-info">
+          <text class="setting-title">重置应用</text>
+          <text class="setting-desc">恢复默认设置</text>
+        </view>
       </view>
       <text class="setting-arrow">></text>
     </view>
+  </view>
+
+  <!-- 关于应用 -->
+  <view class="settings-section">
+    <view class="section-title">关于应用</view>
+    
+    <view class="setting-item" bindtap="showAbout">
+      <view class="setting-left">
+        <text class="setting-icon">ℹ️</text>
+        <view class="setting-info">
+          <text class="setting-title">关于卡点时光</text>
+          <text class="setting-desc">版本信息和使用说明</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
+    <view class="setting-item" bindtap="showFeedback">
+      <view class="setting-left">
+        <text class="setting-icon">💬</text>
+        <view class="setting-info">
+          <text class="setting-title">意见反馈</text>
+          <text class="setting-desc">告诉我们您的建议</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+
+    <view class="setting-item" bindtap="showShare">
+      <view class="setting-left">
+        <text class="setting-icon">📤</text>
+        <view class="setting-info">
+          <text class="setting-title">分享应用</text>
+          <text class="setting-desc">推荐给朋友使用</text>
+        </view>
+      </view>
+      <text class="setting-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text class="version-text">卡点时光 v1.0.0</text>
+    <text class="copyright">© 2024 卡点时光团队</text>
   </view>
   
-  <!-- 分享区域 -->
-  <view class="share-section">
-    <button class="btn btn-primary share-btn" bindtap="shareApp">
-      分享给朋友
-    </button>
-  </view>
+  <!-- 自定义底部导航栏 -->
+  <custom-tabbar current-tab="{{2}}"></custom-tabbar>
 </view>

@@ -1,0 +1,119 @@
+<!--pages/reminder-settings/reminder-settings.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">提醒设置</text>
+    <text class="page-subtitle">设置套餐卡到期和使用提醒</text>
+  </view>
+
+  <!-- 提醒开关设置 -->
+  <view class="settings-section">
+    <view class="section-title">提醒开关</view>
+    
+    <!-- 到期提醒开关 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">到期提醒</text>
+        <text class="setting-desc">套餐卡到期前提醒</text>
+      </view>
+      <switch class="setting-switch" checked="{{reminderSettings.expireReminder}}" bindchange="onExpireReminderChange" color="#FCC96E" />
+    </view>
+    
+    <!-- 使用频率提醒开关 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">使用频率提醒</text>
+        <text class="setting-desc">提醒长时间未使用的套餐卡</text>
+      </view>
+      <switch class="setting-switch" checked="{{reminderSettings.usageReminder}}" bindchange="onUsageReminderChange" color="#FCC96E" />
+    </view>
+    
+    <!-- 统计提醒开关 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">统计提醒</text>
+        <text class="setting-desc">每月使用统计提醒</text>
+      </view>
+      <switch class="setting-switch" checked="{{reminderSettings.statsReminder}}" bindchange="onStatsReminderChange" color="#FCC96E" />
+    </view>
+  </view>
+
+  <!-- 提醒时间设置 -->
+  <view class="settings-section" wx:if="{{reminderSettings.expireReminder}}">
+    <view class="section-title">提醒时间</view>
+    
+    <!-- 提前提醒天数 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">提前提醒天数</text>
+        <text class="setting-desc">套餐卡到期前多少天开始提醒</text>
+      </view>
+      <picker class="setting-picker" mode="selector" range="{{reminderDays}}" value="{{reminderDaysIndex}}" bindchange="onReminderDaysChange">
+        <view class="picker-text">{{reminderDays[reminderDaysIndex]}}天</view>
+      </picker>
+    </view>
+    
+    <!-- 提醒时间 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">提醒时间</text>
+        <text class="setting-desc">每天提醒的时间</text>
+      </view>
+      <picker class="setting-picker" mode="time" value="{{reminderSettings.reminderTime}}" bindchange="onReminderTimeChange">
+        <view class="picker-text">{{reminderSettings.reminderTime}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 使用频率设置 -->
+  <view class="settings-section" wx:if="{{reminderSettings.usageReminder}}">
+    <view class="section-title">使用频率设置</view>
+    
+    <!-- 未使用天数阈值 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">未使用天数阈值</text>
+        <text class="setting-desc">超过多少天未使用开始提醒</text>
+      </view>
+      <picker class="setting-picker" mode="selector" range="{{unusedDays}}" value="{{unusedDaysIndex}}" bindchange="onUnusedDaysChange">
+        <view class="picker-text">{{unusedDays[unusedDaysIndex]}}天</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 提醒方式设置 -->
+  <view class="settings-section">
+    <view class="section-title">提醒方式</view>
+    
+    <!-- 弹窗提醒 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">弹窗提醒</text>
+        <text class="setting-desc">打开小程序时显示提醒弹窗</text>
+      </view>
+      <switch class="setting-switch" checked="{{reminderSettings.popupReminder}}" bindchange="onPopupReminderChange" color="#FCC96E" />
+    </view>
+    
+    <!-- 震动提醒 -->
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-label">震动提醒</text>
+        <text class="setting-desc">提醒时设备震动</text>
+      </view>
+      <switch class="setting-switch" checked="{{reminderSettings.vibrateReminder}}" bindchange="onVibrateReminderChange" color="#FCC96E" />
+    </view>
+  </view>
+
+  <!-- 测试提醒按钮 -->
+  <view class="settings-section">
+    <view class="section-title">测试提醒</view>
+    <button class="test-btn" bindtap="testReminder">测试提醒功能</button>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="bottom-actions">
+    <button class="btn btn-secondary" bindtap="resetSettings">恢复默认</button>
+    <button class="btn btn-primary" bindtap="saveSettings">保存设置</button>
+  </view>
+</view>
+

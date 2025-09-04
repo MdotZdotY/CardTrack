@@ -1,0 +1,13 @@
+<!--components/custom-tabbar/custom-tabbar.wxml-->
+<view class="custom-tabbar">
+  <view class="tabbar-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0" data-path="/pages/index/index">
+    <text class="tabbar-text">首页</text>
+  </view>
+  <view class="tabbar-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1" data-path="/pages/stats/stats">
+    <text class="tabbar-text">统计</text>
+  </view>
+  <view class="tabbar-item {{currentTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2" data-path="/pages/settings/settings">
+    <text class="tabbar-text">设置</text>
+  </view>
+</view>
+

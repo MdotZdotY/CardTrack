@@ -10,143 +10,177 @@ Page({
     refreshing: false
   },
 
-  onLoad() {
+  onLoad: function() {
     console.log('首页加载');
     this.loadCardData();
   },
 
-  onShow() {
-    // 每次显示页面时刷新数据
+  onShow: function() {
+    console.log('首页显示');
     this.loadCardData();
   },
 
-  onPullDownRefresh() {
+  onPullDownRefresh: function() {
     this.loadCardData();
   },
 
   // 加载卡片数据
-  async loadCardData() {
+  loadCardData: function() {
     try {
-      const app = getApp();
-      const cardService = app.getCardService();
-      const notificationManager = app.getNotificationManager();
+      console.log('开始加载卡片数据');
       
-      notificationManager.showLoading('加载中...');
+      // 从数据管理器获取卡片数据
+      var app = getApp();
+      var dataManager = app.getDataManager();
+      var cards = [];
       
-      // 获取所有卡片
-      const cards = await cardService.getAllCards();
+      if (dataManager) {
+        // 使用数据管理器获取数据
+        cards = dataManager.getCards();
+        console.log('从数据管理器获取到卡片数据:', cards);
+      } else {
+        // 降级到直接存储
+        cards = wx.getStorageSync('cards') || [];
+        console.log('从本地存储获取到卡片数据(降级方案):', cards);
+      }
       
-      // 获取统计信息
-      const statistics = await cardService.getStatistics();
+      // 计算统计信息
+      var totalCards = cards.length;
+      var expiringCards = 0;
+      var totalRemainingCount = 0;
+      
+      for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        if (card.expireDate) {
+          var expireDate = new Date(card.expireDate);
+          var now = new Date();
+          var daysUntilExpire = Math.ceil((expireDate - now) / (1000 * 60 * 60 * 24));
+          
+          if (daysUntilExpire <= 30 && daysUntilExpire > 0) {
+            expiringCards++;
+          }
+        }
+        
+        totalRemainingCount += (card.totalCount - card.usedCount);
+      }
       
       // 转换为显示数据
-      const displayCards = cards.map(card => ({
-        ...card.toStorage(),
-        progress: card.getProgress(),
-        isExpiring: card.isExpiringSoon(30),
-        expireText: card.getExpireText(),
-        canUse: card.canUse(),
-        remainingCount: card.getRemainingCount()
-      }));
+      var displayCards = cards.map(function(card) {
+        var progress = card.totalCount > 0 ? Math.round((card.usedCount / card.totalCount) * 100) : 0;
+        var isExpiring = false;
+        var expireText = '';
+        
+        if (card.expireDate) {
+          var expireDate = new Date(card.expireDate);
+          var now = new Date();
+          var daysUntilExpire = Math.ceil((expireDate - now) / (1000 * 60 * 60 * 24));
+          
+          if (daysUntilExpire <= 30 && daysUntilExpire > 0) {
+            isExpiring = true;
+            expireText = '还有' + daysUntilExpire + '天到期';
+          } else if (daysUntilExpire <= 0) {
+            expireText = '已过期';
+          } else {
+            expireText = '还有' + daysUntilExpire + '天到期';
+          }
+        }
+        
+        return {
+          ...card,
+          progress: progress,
+          isExpiring: isExpiring,
+          expireText: expireText,
+          canUse: (card.totalCount - card.usedCount) > 0,
+          remainingCount: card.totalCount - card.usedCount
+        };
+      });
       
+      // 设置数据
       this.setData({
-        totalCards: statistics.totalCards,
-        expiringSoon: statistics.expiringCards,
-        remainingCount: statistics.totalRemainingCount,
+        totalCards: totalCards,
+        expiringSoon: expiringCards,
+        remainingCount: totalRemainingCount,
         cards: displayCards,
         filteredCards: displayCards
       });
       
-      notificationManager.hideLoading();
-      
-      // 检查是否有即将到期的卡片
-      const expiringCards = cards.filter(card => card.isExpiringSoon(7));
-      if (expiringCards.length > 0) {
-        notificationManager.showExpireReminder(expiringCards);
+      // 停止下拉刷新
+      if (this.data.refreshing) {
+        this.setData({ refreshing: false });
+        wx.stopPullDownRefresh();
       }
+      
+      // 检查提醒
+      this.checkReminders(displayCards);
       
     } catch (error) {
       console.error('加载卡片数据失败:', error);
-      const app = getApp();
-      const notificationManager = app.getNotificationManager();
-      notificationManager.hideLoading();
-      notificationManager.showError('数据加载失败');
+      this.setDefaultData();
     }
+  },
+
+  // 检查提醒
+  checkReminders: function(cards) {
+    try {
+      var app = getApp();
+      if (app && app.getReminderManager) {
+        var reminderManager = app.getReminderManager();
+        if (reminderManager) {
+          reminderManager.checkAndShowReminders(cards);
+        }
+      }
+    } catch (error) {
+      console.error('检查提醒失败:', error);
+    }
+  },
+
+  // 设置默认数据
+  setDefaultData: function() {
+    this.setData({
+      totalCards: 0,
+      expiringSoon: 0,
+      remainingCount: 0,
+      cards: [],
+      filteredCards: []
+    });
   },
 
   // 记录使用
-  async recordUsage(e) {
-    const cardId = e.currentTarget.dataset.id;
-    const app = getApp();
-    const cardService = app.getCardService();
-    const notificationManager = app.getNotificationManager();
+  recordUsage: function(e) {
+    var cardId = e.currentTarget.dataset.id;
+    console.log('记录使用:', cardId);
     
-    try {
-      const result = await cardService.recordUsage(cardId);
-      
-      if (result.success) {
-        notificationManager.showUsageSuccess(result.card, result.remainingCount);
-        
-        // 刷新数据
-        setTimeout(() => {
-          this.loadCardData();
-        }, 1000);
-      } else {
-        notificationManager.showError(result.error || '记录失败');
-      }
-    } catch (error) {
-      console.error('记录使用失败:', error);
-      notificationManager.showError('操作失败');
-    }
+    wx.showModal({
+      title: '记录使用',
+      content: '此功能将在后续版本中开放',
+      showCancel: false,
+      confirmText: '知道了'
+    });
   },
 
   // 查看详情
-  viewDetail(e) {
-    const cardId = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/card-detail/card-detail?id=${cardId}`
+  viewDetail: function(e) {
+    var cardId = e.currentTarget.dataset.id;
+    console.log('查看详情:', cardId);
+    
+    wx.showModal({
+      title: '查看详情',
+      content: '此功能将在后续版本中开放',
+      showCancel: false,
+      confirmText: '知道了'
     });
   },
 
   // 添加卡片
-  addCard() {
+  addCard: function() {
+    console.log('添加卡片');
     wx.navigateTo({
       url: '/pages/add-card/add-card'
     });
   },
 
-  // 拍照录入
-  scanCard() {
-    wx.showModal({
-      title: '拍照录入',
-      content: '此功能将在后续版本中开放',
-      showCancel: false,
-      confirmText: '知道了'
-    });
-  },
-
-  // 提醒设置
-  setReminder() {
-    wx.showModal({
-      title: '提醒设置',
-      content: '此功能将在后续版本中开放',
-      showCancel: false,
-      confirmText: '知道了'
-    });
-  },
-
-  // 查看统计
-  viewStats() {
-    wx.showModal({
-      title: '使用统计',
-      content: '此功能将在后续版本中开放',
-      showCancel: false,
-      confirmText: '知道了'
-    });
-  },
-
   // 显示搜索
-  showSearch() {
+  showSearch: function() {
     wx.showModal({
       title: '搜索功能',
       content: '此功能将在后续版本中开放',
@@ -156,18 +190,22 @@ Page({
   },
 
   // 筛选卡片
-  filterCards(e) {
-    const filter = e.currentTarget.dataset.filter;
-    const { cards } = this.data;
+  filterCards: function(e) {
+    var filter = e.currentTarget.dataset.filter;
+    var cards = this.data.cards;
     
-    let filteredCards = cards;
+    var filteredCards = cards;
     
     switch (filter) {
       case 'expiring':
-        filteredCards = cards.filter(card => card.isExpiring);
+        filteredCards = cards.filter(function(card) {
+          return card.isExpiring;
+        });
         break;
       case 'active':
-        filteredCards = cards.filter(card => card.canUse);
+        filteredCards = cards.filter(function(card) {
+          return card.canUse;
+        });
         break;
       default:
         filteredCards = cards;
@@ -175,76 +213,34 @@ Page({
     
     this.setData({
       currentFilter: filter,
-      filteredCards
+      filteredCards: filteredCards
     });
   },
 
   // 下拉刷新
-  onRefresh() {
+  onRefresh: function() {
+    var that = this;
     this.setData({ refreshing: true });
-    this.loadCardData().finally(() => {
-      this.setData({ refreshing: false });
+    this.loadCardData();
+    
+    setTimeout(function() {
+      that.setData({ refreshing: false });
       wx.stopPullDownRefresh();
-    });
-  },
-
-  // 长按撤销使用
-  onLongPressCard(e) {
-    const cardId = e.currentTarget.dataset.id;
-    const app = getApp();
-    const notificationManager = app.getNotificationManager();
-    
-    notificationManager.showConfirm(
-      '撤销使用',
-      '确定要撤销最近一次使用记录吗？',
-      '撤销',
-      '取消'
-    ).then(confirmed => {
-      if (confirmed) {
-        this.undoUsage(cardId);
-      }
-    });
-  },
-
-  // 撤销使用
-  async undoUsage(cardId) {
-    const app = getApp();
-    const cardService = app.getCardService();
-    const notificationManager = app.getNotificationManager();
-    
-    try {
-      const result = await cardService.undoUsage(cardId);
-      
-      if (result.success) {
-        notificationManager.showUndoSuccess(result.card, result.remainingCount);
-        
-        // 刷新数据
-        setTimeout(() => {
-          this.loadCardData();
-        }, 1000);
-      } else {
-        notificationManager.showError(result.error || '撤销失败');
-      }
-    } catch (error) {
-      console.error('撤销使用失败:', error);
-      notificationManager.showError('操作失败');
-    }
+    }, 1000);
   },
 
   // 分享功能
-  onShareAppMessage() {
+  onShareAppMessage: function() {
     return {
-      title: '卡点 - 让每一次消费都有记录',
-      path: '/pages/index/index',
-      imageUrl: '/images/share-cover.png'
+      title: '卡点时光 - 让每一次消费都有记录',
+      path: '/pages/index/index'
     };
   },
 
   // 分享到朋友圈
-  onShareTimeline() {
+  onShareTimeline: function() {
     return {
-      title: '卡点 - 让每一次消费都有记录',
-      imageUrl: '/images/share-cover.png'
+      title: '卡点时光 - 让每一次消费都有记录'
     };
   }
 });

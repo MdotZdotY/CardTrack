@@ -1,66 +1,114 @@
 // app.js - 小程序入口文件
-import { StorageManager } from './utils/storage/StorageManager.js';
-import { LocalStorageStrategy } from './utils/storage/LocalStorageStrategy.js';
-import { CardService } from './services/CardService.js';
-import { NotificationManager } from './utils/NotificationManager.js';
+var ReminderManager = require('./utils/ReminderManager.js');
+var DataManager = require('./utils/DataManager.js');
+var DataBackupManager = require('./utils/DataBackupManager.js');
 
 App({
   globalData: {
     userInfo: null
   },
 
-  onLaunch() {
-    console.log('卡点小程序启动');
-    this.initStorage();
-    this.initServices();
+  onLaunch: function() {
+    console.log('卡点时光小程序启动');
+    this.initDataManager();
+    this.initBackupManager();
+    this.initReminderManager();
   },
 
-  onShow() {
-    // 小程序显示时检查提醒
-    this.checkNotifications();
+  onShow: function() {
+    console.log('小程序显示');
+    this.checkReminders();
+    this.checkDataIntegrity();
   },
 
-  // 初始化存储系统
-  initStorage() {
-    // V1.0版本：使用本地存储策略
-    const localStrategy = new LocalStorageStrategy();
-    this.storageManager = new StorageManager(localStrategy);
-    
-    console.log('存储系统初始化完成');
+  onHide: function() {
+    console.log('小程序隐藏，创建自动备份');
+    this.createAutoBackup();
   },
 
-  // 初始化业务服务
-  initServices() {
-    this.cardService = new CardService(this.storageManager);
-    this.notificationManager = new NotificationManager();
-    
-    console.log('业务服务初始化完成');
-  },
-
-  // 获取卡片服务
-  getCardService() {
-    return this.cardService;
-  },
-
-  // 获取存储管理器
-  getStorageManager() {
-    return this.storageManager;
-  },
-
-  // 获取通知管理器
-  getNotificationManager() {
-    return this.notificationManager;
-  },
-
-  // 检查并发送提醒
-  async checkNotifications() {
+  // 初始化数据管理器
+  initDataManager: function() {
     try {
-      const expiringCards = await this.cardService.getExpiringSoonCards();
-      if (expiringCards.length > 0) {
-        this.notificationManager.showExpireReminder(expiringCards);
+      this.dataManager = new DataManager();
+      console.log('数据管理器初始化完成');
+    } catch (error) {
+      console.error('数据管理器初始化失败:', error);
+    }
+  },
+
+  // 初始化备份管理器
+  initBackupManager: function() {
+    try {
+      this.backupManager = new DataBackupManager();
+      console.log('备份管理器初始化完成');
+    } catch (error) {
+      console.error('备份管理器初始化失败:', error);
+    }
+  },
+
+  // 初始化提醒管理器
+  initReminderManager: function() {
+    try {
+      this.reminderManager = new ReminderManager();
+      console.log('提醒管理器初始化完成');
+    } catch (error) {
+      console.error('提醒管理器初始化失败:', error);
+    }
+  },
+
+  // 检查提醒
+  checkReminders: function() {
+    try {
+      if (this.reminderManager && this.dataManager) {
+        // 获取套餐卡数据
+        var cards = this.dataManager.getCards();
+        if (cards.length > 0) {
+          this.reminderManager.checkAndShowReminders(cards);
+        }
       }
     } catch (error) {
       console.error('检查提醒失败:', error);
     }
+  },
+
+  // 检查数据完整性
+  checkDataIntegrity: function() {
+    try {
+      if (this.dataManager) {
+        var integrity = this.dataManager.checkDataIntegrity();
+        if (!integrity.isValid) {
+          console.warn('数据完整性检查发现问题:', integrity.issues);
+          // 可以在这里添加用户提示
+        }
+      }
+    } catch (error) {
+      console.error('检查数据完整性失败:', error);
+    }
+  },
+
+  // 创建自动备份
+  createAutoBackup: function() {
+    try {
+      if (this.backupManager) {
+        this.backupManager.createAutoBackup();
+      }
+    } catch (error) {
+      console.error('创建自动备份失败:', error);
+    }
+  },
+
+  // 获取数据管理器
+  getDataManager: function() {
+    return this.dataManager;
+  },
+
+  // 获取备份管理器
+  getBackupManager: function() {
+    return this.backupManager;
+  },
+
+  // 获取提醒管理器
+  getReminderManager: function() {
+    return this.reminderManager;
   }
 });

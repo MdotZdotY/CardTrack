@@ -125,17 +125,21 @@ UsageRecord {
 ### 5.1 品牌视觉设计
 
 #### 5.1.1 配色系统
-**主色调：#FF8A00（橙色）**
+**主色调：#FCC96E（姜黄色）**
 - 应用于：头部导航、主要按钮、进度条、活跃状态
 - 寓意：积极、温暖、活力，体现记录每一次消费的正面态度
 
-**辅色：#FFFBF0（米白色）**
+**辅色1：#FFF2DF（浅姜黄色）**
 - 应用于：整体背景、卡片背景、按钮文字
 - 寓意：简洁、纯净，营造舒适的使用体验
 
+**辅色2：#156D57（深绿色）**
+- 应用于：文字和强调色、按钮文字、重要信息、导航栏标题
+- 寓意：稳重、可靠，与姜黄色形成良好对比
+
 **字体色：#020100（深黑色）**
 - 应用于：标题、正文、重要信息
-- 优势：与米白背景形成高对比度，确保最佳可读性
+- 优势：与浅姜黄背景形成高对比度，确保最佳可读性
 
 **警示色：#FF4444（红色）**
 - 应用于：到期提醒、重要警告信息
@@ -143,16 +147,17 @@ UsageRecord {
 
 #### 5.1.2 视觉风格
 - **现代简约**：采用渐变色和玻璃质感，体现现代设计趋势
-- **温暖亲和**：橙色系配色降低使用门槛，增加产品亲和力
+- **温暖亲和**：姜黄色系配色降低使用门槛，增加产品亲和力
 - **层次分明**：通过透明度和阴影营造空间层次感
-- **品牌识别**：独特的橙色主色调增强品牌记忆点
+- **品牌识别**：独特的姜黄色主色调增强品牌记忆点
+- **对比鲜明**：深绿色强调色与姜黄色形成良好对比，提升可读性
 
 ### 5.2 界面布局设计
 
 #### 5.2.1 首页布局结构
 ```
 ┌─────────────────────────────────────┐
-│           状态栏（橙色渐变）           │
+│           状态栏（姜黄色渐变）           │
 ├─────────────────────────────────────┤
 │              头部区域                │
 │  ┌─────────────────────────────────┐ │
@@ -195,7 +200,7 @@ UsageRecord {
 **快捷操作按钮**
 - 4×1网格布局
 - 图标 + 文字标签组合
-- 橙色系渐变图标背景
+- 姜黄色系渐变图标背景
 - 悬停微动画效果
 
 ### 5.3 交互体验设计
@@ -693,14 +698,14 @@ const AppConfig = {
 ```css
 /* 主要样式定义 */
 .container {
-  background: #FFFBF0;
+  background: #FFF2DF;
   min-height: 100vh;
 }
 
 .header {
-  background: linear-gradient(135deg, #FF8A00 0%, #FFB366 100%);
+  background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%);
   padding: 20rpx 40rpx 60rpx;
-  color: #FFFBF0;
+  color: #156D57;
 }
 
 .logo-title {
@@ -727,12 +732,12 @@ const AppConfig = {
 .stat-number {
   font-size: 48rpx;
   font-weight: bold;
-  color: #FFFBF0;
+  color: #156D57;
 }
 
 .quick-actions {
   padding: 40rpx;
-  background: #FFFBF0;
+  background: #FFF2DF;
 }
 
 .actions-grid {
@@ -759,12 +764,12 @@ const AppConfig = {
   align-items: center;
   justify-content: center;
   font-size: 32rpx;
-  color: #FFFBF0;
+  color: #156D57;
   margin-bottom: 16rpx;
 }
 
 .action-add { 
-  background: linear-gradient(135deg, #FF8A00, #FFB366); 
+  background: linear-gradient(135deg, #FCC96E, #FDD89A); 
 }
 
 .card-item {
@@ -782,8 +787,8 @@ const AppConfig = {
 }
 
 .btn-use {
-  background: linear-gradient(135deg, #FF8A00 0%, #FFB366 100%);
-  color: #FFFBF0;
+  background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%);
+  color: #156D57;
   border: none;
   border-radius: 16rpx;
   padding: 16rpx 32rpx;
@@ -793,7 +798,7 @@ const AppConfig = {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FF8A00, #FFB366);
+  background: linear-gradient(90deg, #FCC96E, #FDD89A);
   border-radius: 6rpx;
   transition: width 0.3s;
 }
@@ -805,8 +810,8 @@ const AppConfig = {
   width: 112rpx;
   height: 112rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF8A00, #FFB366);
-  color: #FFFBF0;
+  background: linear-gradient(135deg, #FCC96E, #FDD89A);
+  color: #156D57;
   font-size: 48rpx;
   display: flex;
   align-items: center;
@@ -965,8 +970,9 @@ Page({
 ### 13.4 设计规范总结
 
 **颜色使用规范：**
-- 主色 #FF8A00：用于品牌标识、主要按钮、进度指示
-- 辅色 #FFFBF0：用于背景、卡片、按钮文字
+- 主色 #FCC96E：用于品牌标识、主要按钮、进度指示
+- 辅色1 #FFF2DF：用于背景、卡片、按钮文字
+- 辅色2 #156D57：用于文字和强调色、按钮文字、重要信息
 - 文字色 #020100：用于标题、正文、重要信息
 - 警示色 #FF4444：用于到期提醒、错误状态
 

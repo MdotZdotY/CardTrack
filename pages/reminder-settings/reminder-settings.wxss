@@ -1,0 +1,171 @@
+/* pages/reminder-settings/reminder-settings.wxss */
+.container {
+  background-color: #FFF2DF;
+  min-height: 100vh;
+  padding: 0 0 120rpx 0;
+}
+
+/* 页面标题 */
+.page-header {
+  background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%);
+  padding: 60rpx 40rpx 40rpx;
+  color: #156D57;
+  text-align: center;
+}
+
+.page-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 16rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+/* 设置区域 */
+.settings-section {
+  background: white;
+  margin: 24rpx 24rpx 0;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #020100;
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+/* 设置项 */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F8F8F8;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-info {
+  flex: 1;
+  margin-right: 24rpx;
+}
+
+.setting-label {
+  display: block;
+  font-size: 26rpx;
+  color: #020100;
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
+.setting-desc {
+  display: block;
+  font-size: 22rpx;
+  color: #999999;
+  line-height: 1.4;
+}
+
+/* 开关样式 */
+.setting-switch {
+  transform: scale(0.9);
+}
+
+/* 选择器样式 */
+.setting-picker {
+  min-width: 120rpx;
+}
+
+.picker-text {
+  background: #F8F8F8;
+  padding: 16rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #020100;
+  text-align: center;
+  border: 2rpx solid #E8E8E8;
+}
+
+/* 测试按钮 */
+.test-btn {
+  background: #FCC96E;
+  color: #156D57;
+  border: none;
+  border-radius: 12rpx;
+  padding: 24rpx 48rpx;
+  font-size: 26rpx;
+  width: 100%;
+  margin-top: 16rpx;
+}
+
+.test-btn:active {
+  background: #E6B85A;
+}
+
+/* 底部操作按钮 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 24rpx;
+  display: flex;
+  gap: 24rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.btn {
+  flex: 1;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.btn-primary {
+  background: #FCC96E;
+  color: #156D57;
+}
+
+.btn-primary:active {
+  background: #E6B85A;
+}
+
+.btn-secondary {
+  background: #F8F8F8;
+  color: #666666;
+  border: 2rpx solid #E8E8E8;
+}
+
+.btn-secondary:active {
+  background: #F0F0F0;
+}
+
+/* 响应式显示 */
+@media (max-width: 750rpx) {
+  .settings-section {
+    margin: 16rpx 16rpx 0;
+    padding: 24rpx;
+  }
+  
+  .page-header {
+    padding: 40rpx 24rpx 32rpx;
+  }
+  
+  .bottom-actions {
+    padding: 16rpx;
+  }
+}
+
