@@ -1,11 +1,12 @@
 <!--pages/stats/stats.wxml-->
 <view class="container">
-  <!-- 页面标题 -->
-  <view class="page-header">
+  <!-- 页面标题（与首页一致的顶铺样式） -->
+  <view class="page-header" style="{{headerStyle}}">
     <text class="page-title">使用统计</text>
     <text class="page-subtitle">了解您的套餐卡使用情况</text>
   </view>
 
+  <view class="page-content">
   <!-- 统计概览 -->
   <view class="stats-overview">
     <view class="stat-card">
@@ -40,23 +41,8 @@
       </view>
     </view>
   </view>
-
-  <!-- 使用频率 -->
-  <view class="usage-frequency">
-    <text class="section-title">使用频率</text>
-    <view class="frequency-list">
-      <view class="frequency-item" wx:for="{{usageFrequency}}" wx:key="cardId">
-        <view class="card-info">
-          <text class="card-name">{{item.name}}</text>
-          <text class="merchant-name">{{item.merchant}}</text>
-        </view>
-        <view class="usage-info">
-          <text class="usage-count">{{item.usageCount}}次</text>
-          <text class="usage-rate">{{item.usageRate}}%</text>
-        </view>
-      </view>
-    </view>
   </view>
+  
 
   <!-- 到期提醒 -->
   <view class="expiry-reminder" wx:if="{{expiringCards.length > 0}}">

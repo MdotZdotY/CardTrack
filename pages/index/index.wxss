@@ -1,17 +1,23 @@
 /* pages/index/index.wxss */
 .container {
   padding: 0;
-  min-height: 100vh;
+  height: 100vh;
   background: #FFF2DF;
-  /* 为底部导航栏留出空间 */
-  padding-bottom: 120rpx;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 头部区域 */
+/* 头部区域 - 固定定位 */
 .header {
   background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%);
-  padding: 40rpx 40rpx 60rpx;
+  padding: 88rpx 40rpx 60rpx;
+  padding-top: calc(env(safe-area-inset-top) + 44px);
   color: #156D57;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
 .header-top {
@@ -88,6 +94,7 @@
   background: rgba(21, 109, 87, 0.3);
 }
 
+
 /* 快捷操作区 */
 .quick-actions {
   padding: 40rpx;
@@ -148,10 +155,18 @@
   line-height: 1.4;
 }
 
-/* 卡片列表区域 */
+/* 卡片列表区域 - 可滚动 */
 .cards-section {
+  flex: 1;
   padding: 40rpx;
   background: #FFF2DF;
+  overflow-y: auto;
+  /* 为固定头部留出足够空间 - 安全区域 + 头部padding + 统计卡片高度 + 额外间距 */
+  padding-top: calc(env(safe-area-inset-top) + 44px + 88rpx + 60rpx + 200rpx + 60rpx);
+  /* 为底部导航栏留出空间 */
+  padding-bottom: 140rpx;
+  /* 滚动优化 */
+  -webkit-overflow-scrolling: touch;
 }
 
 .cards-header {
@@ -167,32 +182,14 @@
   color: #020100;
 }
 
-.filter-tabs {
-  display: flex;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 8rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
-}
 
-.filter-tab {
-  padding: 16rpx 24rpx;
-  border-radius: 20rpx;
-  font-size: 26rpx;
-  color: #666666;
-  transition: all 0.3s ease;
-}
-
-.filter-tab.active {
-  background: #FCC96E;
-  color: #156D57;
-  font-weight: 600;
-}
 
 .cards-list {
   display: flex;
   flex-direction: column;
   gap: 24rpx;
+  /* 为第一张卡片添加额外的顶部间距 */
+  padding-top: 20rpx;
 }
 
 .card-item {
@@ -201,6 +198,44 @@
   padding: 32rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+}
+
+/* 已用完的卡片样式 */
+.card-item.used-up {
+  background: #F5F5F5;
+  opacity: 0.8;
+}
+
+.card-item.used-up .card-name {
+  color: #999999;
+}
+
+.card-item.used-up .card-merchant {
+  color: #CCCCCC;
+}
+
+.card-item.used-up .card-category {
+  background: rgba(153, 153, 153, 0.1);
+  color: #999999;
+}
+
+.card-item.used-up .usage-text {
+  color: #999999;
+}
+
+.card-item.used-up .expire-text {
+  color: #CCCCCC;
+}
+
+.card-item.used-up .card-actions .btn {
+  background: #E0E0E0;
+  color: #999999;
+  border: 1rpx solid #E0E0E0;
+}
+
+.card-item.used-up .card-actions .btn:disabled {
+  background: #F0F0F0;
+  color: #CCCCCC;
 }
 
 .card-item:active {
@@ -354,27 +389,276 @@
   box-shadow: 0 4rpx 12rpx rgba(252, 201, 110, 0.4);
 }
 
-/* 浮动添加按钮 */
-.fab {
+
+/* 记录使用弹窗样式 */
+.modal-overlay {
   position: fixed;
-  right: 40rpx;
-  bottom: 140rpx;
-  width: 120rpx;
-  height: 120rpx;
-  background: linear-gradient(135deg, #FCC96E, #FDD89A);
-  border-radius: 50%;
-  color: #156D57;
-  font-size: 60rpx;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60rpx 40rpx 40rpx;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  width: 100%;
+  max-width: 600rpx;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40rpx 40rpx 20rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.modal-title {
+  font-size: 36rpx;
   font-weight: bold;
-  box-shadow: 0 8rpx 24rpx rgba(252, 201, 110, 0.4);
-  z-index: 999;
+  color: #020100;
+}
+
+.modal-close {
+  font-size: 48rpx;
+  color: #999999;
+  width: 60rpx;
+  height: 60rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  background: #F5F5F5;
+}
+
+.modal-close:active {
+  background: #E0E0E0;
+}
+
+.modal-body {
+  padding: 40rpx;
+  min-height: 300rpx;
+}
+
+.modal-body .form-item {
+  margin-bottom: 40rpx;
+}
+
+.modal-body .form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #020100;
+  margin-bottom: 16rpx;
+}
+
+.modal-body .form-input {
+  width: 100%;
+  padding: 24rpx 32rpx;
+  background: #F8F8F8;
+  border: 2rpx solid #E0E0E0;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #020100;
+  box-sizing: border-box;
+  min-height: 80rpx;
+  line-height: 1.4;
+}
+
+.modal-body .form-input:focus {
+  border-color: #FCC96E;
+  background: #FFFFFF;
+}
+
+.modal-body .form-picker {
+  width: 100%;
+  padding: 24rpx 32rpx;
+  background: #F8F8F8;
+  border: 2rpx solid #E0E0E0;
+  border-radius: 16rpx;
+  box-sizing: border-box;
+  min-height: 80rpx;
+  display: flex;
+  align-items: center;
+}
+
+.modal-body .picker-text {
+  font-size: 28rpx;
+  color: #020100;
+}
+
+.card-info-display {
+  background: rgba(252, 201, 110, 0.1);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-top: 20rpx;
+}
+
+.info-label {
+  display: block;
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 8rpx;
+}
+
+.info-text {
+  display: block;
+  font-size: 26rpx;
+  color: #156D57;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 24rpx;
+  padding: 20rpx 40rpx 40rpx;
+  border-top: 2rpx solid #F0F0F0;
+}
+
+.modal-footer .btn {
+  flex: 1;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: center;
+  border: none;
   transition: all 0.3s ease;
 }
 
-.fab:active {
-  transform: scale(0.9);
-  box-shadow: 0 4rpx 12rpx rgba(252, 201, 110, 0.6);
+.modal-footer .btn-primary {
+  background: #FCC96E;
+  color: #156D57;
 }
+
+.modal-footer .btn-primary:active {
+  background: #E6B85A;
+  transform: scale(0.95);
+}
+
+.modal-footer .btn-primary:disabled {
+  background: #E0E0E0;
+  color: #999999;
+  transform: none;
+}
+
+.modal-footer .btn-secondary {
+  background: #F5F5F5;
+  color: #666666;
+}
+
+.modal-footer .btn-secondary:active {
+  background: #E0E0E0;
+  transform: scale(0.95);
+}
+
+/* 记录使用日期选择器弹窗样式 */
+.date-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.date-picker-modal {
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 40rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.date-picker-cancel {
+  font-size: 32rpx;
+  color: #666666;
+}
+
+.date-picker-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #020100;
+}
+
+.date-picker-confirm {
+  font-size: 32rpx;
+  color: #FCC96E;
+  font-weight: 600;
+}
+
+/* 内联日期选择器样式 */
+.inline-date-picker {
+  margin-top: 20rpx;
+  border-top: 2rpx solid #F0F0F0;
+  padding-top: 20rpx;
+}
+
+.inline-date-picker .date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #F0F0F0;
+  margin-bottom: 20rpx;
+}
+
+.inline-date-picker .date-picker-cancel,
+.inline-date-picker .date-picker-confirm {
+  font-size: 32rpx;
+  color: #FCC96E;
+  font-weight: 600;
+}
+
+.inline-date-picker .date-picker-title {
+  font-size: 32rpx;
+  color: #020100;
+  font-weight: 600;
+}
+
+.inline-date-picker .date-picker-content {
+  padding: 0;
+  max-height: 200rpx;
+  overflow: hidden;
+}
+
+.inline-date-picker .date-picker-view {
+  height: 200rpx;
+  width: 100%;
+}
+
+.inline-date-picker .date-picker-item {
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #020100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

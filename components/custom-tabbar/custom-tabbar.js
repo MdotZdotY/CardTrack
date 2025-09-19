@@ -22,18 +22,31 @@ Component({
         return;
       }
       
-      // 跳转到对应页面
-      wx.switchTab({
-        url: path,
+      // 跳转到对应页面（自定义 tabbar 不使用 switchTab）
+      var url = path && path.startsWith('/') ? path : ('/' + path);
+      wx.reLaunch({
+        url: url,
         success: function() {
-          console.log('切换到页面:', path);
+          console.log('切换到页面:', url);
         },
         fail: function(error) {
           console.error('页面跳转失败:', error);
-          // 如果switchTab失败，尝试使用navigateTo
-          wx.navigateTo({
-            url: path
-          });
+          // 兜底再尝试 redirectTo（不入栈）
+          wx.redirectTo({ url: url });
+        }
+      });
+    },
+
+    // 添加卡片
+    addCard: function() {
+      console.log('点击添加卡片按钮');
+      wx.navigateTo({
+        url: '/pages/add-card/add-card',
+        success: function() {
+          console.log('跳转到添加卡片页面');
+        },
+        fail: function(error) {
+          console.error('跳转添加卡片页面失败:', error);
         }
       });
     }

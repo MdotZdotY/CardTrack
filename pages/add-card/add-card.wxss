@@ -59,7 +59,7 @@
 
 .form-picker {
   width: 100%;
-  height: 88rpx;
+  height: 100rpx;
   background: rgba(255, 242, 223, 0.8);
   border: 2rpx solid rgba(252, 201, 110, 0.2);
   border-radius: 16rpx;
@@ -67,12 +67,20 @@
   align-items: center;
   padding: 0 24rpx;
   box-sizing: border-box;
+  position: relative;
 }
 
 .picker-text {
-  font-size: 28rpx;
+  font-size: 32rpx;
   color: #020100;
   flex: 1;
+  font-weight: 500;
+}
+
+.picker-arrow {
+  font-size: 24rpx;
+  color: #999999;
+  margin-left: 16rpx;
 }
 
 .form-textarea {
@@ -140,6 +148,89 @@
   transform: scale(0.98);
 }
 
+/* 自定义分类选择器样式 */
+.category-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.category-picker-modal {
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 40rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.picker-cancel {
+  font-size: 32rpx;
+  color: #666666;
+}
+
+.picker-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #020100;
+}
+
+.picker-confirm {
+  font-size: 32rpx;
+  color: #FCC96E;
+  font-weight: 600;
+}
+
+.picker-content {
+  padding: 20rpx 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.picker-item {
+  padding: 32rpx 40rpx;
+  border-bottom: 2rpx solid #F8F8F8;
+  transition: background-color 0.3s ease;
+}
+
+.picker-item:last-child {
+  border-bottom: none;
+}
+
+.picker-item.selected {
+  background: rgba(252, 201, 110, 0.1);
+}
+
+.picker-item:active {
+  background: rgba(252, 201, 110, 0.05);
+}
+
+.picker-item-text {
+  font-size: 36rpx;
+  color: #020100;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.picker-item.selected .picker-item-text {
+  color: #FCC96E;
+  font-weight: 600;
+}
+
 /* 输入框占位符样式 */
 .form-input::placeholder,
 .form-textarea::placeholder {
@@ -149,4 +240,116 @@
 /* 数字输入框样式 */
 .form-input[type="number"] {
   text-align: right;
+}
+
+/* 金额输入框样式 */
+.form-input[type="digit"] {
+  text-align: right;
+}
+
+/* 日期选择器弹窗样式 */
+.date-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.date-picker-modal {
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 40rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.date-picker-cancel {
+  font-size: 32rpx;
+  color: #666666;
+}
+
+.date-picker-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #020100;
+}
+
+.date-picker-confirm {
+  font-size: 32rpx;
+  color: #FCC96E;
+  font-weight: 600;
+}
+
+.date-picker-content {
+  padding: 40rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.date-picker-item {
+  padding: 32rpx 40rpx;
+  border-bottom: 2rpx solid #F8F8F8;
+  transition: background-color 0.3s ease;
+}
+
+.date-picker-item:last-child {
+  border-bottom: none;
+}
+
+.date-picker-item.selected {
+  background: rgba(252, 201, 110, 0.1);
+}
+
+.date-picker-item:active {
+  background: rgba(252, 201, 110, 0.05);
+}
+
+.date-picker-item-text {
+  font-size: 36rpx;
+  color: #020100;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.date-picker-item.selected .date-picker-item-text {
+  color: #FCC96E;
+  font-weight: 600;
+}
+
+.date-picker-view {
+  height: 400rpx;
+  width: 100%;
+}
+
+.date-picker-view picker-view-column-item {
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  font-size: 32rpx;
+  color: #020100;
+}
+
+.date-picker-item-text {
+  display: block;
+  width: 100%;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  font-size: 32rpx;
+  color: #020100;
+  font-weight: 500;
 }

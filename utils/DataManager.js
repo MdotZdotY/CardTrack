@@ -32,10 +32,18 @@ class DataManager {
         cards = this.restoreFromOtherLocations();
       }
       
+      // 如果还是没有数据，尝试从开发模式备份恢复
+      if (!cards || cards.length === 0) {
+        console.log('尝试从开发模式备份恢复');
+        cards = this.restoreFromDevBackup();
+      }
+      
       // 如果有数据，创建多重备份
       if (cards && cards.length > 0) {
         console.log('数据恢复成功，创建多重备份');
         this.createMultipleBackups(cards);
+        // 创建开发模式备份
+        this.createDevBackup(cards);
       }
       
       // 记录数据状态
@@ -87,7 +95,9 @@ class DataManager {
   // 从存储获取数据
   getCardsFromStorage(key) {
     try {
-      return wx.getStorageSync(key);
+      var data = wx.getStorageSync(key);
+      console.log('从存储获取数据:', key, '数据:', data ? data.length : 0, '条');
+      return data;
     } catch (error) {
       console.error('从存储获取数据失败:', key, error);
       return null;
@@ -189,6 +199,9 @@ class DataManager {
       // 压缩备份（减少存储空间）
       this.createCompressedBackup(cards);
       
+      // 开发模式备份
+      this.createDevBackup(cards);
+      
       console.log('多重备份创建完成');
     } catch (error) {
       console.error('创建多重备份失败:', error);
@@ -251,7 +264,9 @@ class DataManager {
   // 保存数据到存储
   saveCardsToStorage(key, cards) {
     try {
+      console.log('尝试保存到存储:', key, '数据长度:', cards ? cards.length : 0);
       wx.setStorageSync(key, cards);
+      console.log('保存成功:', key);
       return true;
     } catch (error) {
       console.error('保存到存储失败:', key, error);
@@ -369,6 +384,50 @@ class DataManager {
       return false;
     } catch (error) {
       console.error('删除卡片失败:', error);
+      return false;
+    }
+  }
+
+  // 记录使用
+  recordUsage(cardId, useCount, useDate) {
+    try {
+      var cards = this.getCards();
+      var cardIndex = cards.findIndex(function(card) {
+        return card.id === cardId;
+      });
+      
+      if (cardIndex === -1) {
+        console.error('卡片不存在:', cardId);
+        return false;
+      }
+      
+      var card = cards[cardIndex];
+      
+      // 验证使用次数
+      if (useCount <= 0) {
+        console.error('使用次数必须大于0');
+        return false;
+      }
+      
+      if (useCount > (card.totalCount - card.usedCount)) {
+        console.error('使用次数超过剩余次数');
+        return false;
+      }
+      
+      // 更新卡片数据
+      cards[cardIndex].usedCount += useCount;
+      cards[cardIndex].lastUsedDate = useDate;
+      cards[cardIndex].updatedAt = new Date().toISOString();
+      
+      // 保存更新后的数据
+      var success = this.saveCards(cards);
+      if (success) {
+        console.log('记录使用成功:', cardId, '使用次数:', useCount, '使用日期:', useDate);
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('记录使用失败:', error);
       return false;
     }
   }
@@ -589,6 +648,174 @@ class DataManager {
     } catch (error) {
       console.error('导入数据失败:', error);
       return false;
+    }
+  }
+
+  // 创建开发模式备份（使用更稳定的存储键）
+  createDevBackup(cards) {
+    try {
+      // 使用多个不同的存储键，增加数据存活概率
+      var devBackupKeys = [
+        'dev_cards_backup',
+        'user_data_cards',
+        'app_data_cards',
+        'persistent_cards',
+        'main_data_cards'
+      ];
+      
+      console.log('开始创建开发模式备份，卡片数量:', cards.length);
+      
+      for (var i = 0; i < devBackupKeys.length; i++) {
+        var backupKey = devBackupKeys[i];
+        var success = this.saveCardsToStorage(backupKey, cards);
+        console.log('备份到', backupKey, '结果:', success);
+      }
+      
+      // 尝试使用云存储作为备选方案
+      this.createCloudBackup(cards);
+      
+      console.log('开发模式备份创建完成');
+    } catch (error) {
+      console.error('创建开发模式备份失败:', error);
+    }
+  }
+
+  // 创建云存储备份
+  createCloudBackup(cards) {
+    try {
+      // 将数据转换为JSON字符串并保存到云存储
+      var dataStr = JSON.stringify({
+        version: this.currentVersion,
+        timestamp: Date.now(),
+        cards: cards
+      });
+      
+      // 使用一个特殊的键名，希望能在重新编译后存活
+      var cloudKey = 'cloud_backup_' + Date.now();
+      wx.setStorageSync(cloudKey, dataStr);
+      
+      // 同时保存一个固定的云备份键
+      wx.setStorageSync('cloud_backup_latest', dataStr);
+      
+      console.log('云存储备份创建成功:', cloudKey);
+    } catch (error) {
+      console.error('创建云存储备份失败:', error);
+    }
+  }
+
+  // 从开发模式备份恢复
+  restoreFromDevBackup() {
+    try {
+      var devBackupKeys = [
+        'dev_cards_backup',
+        'user_data_cards',
+        'app_data_cards',
+        'persistent_cards',
+        'main_data_cards'
+      ];
+      
+      console.log('开始从开发模式备份恢复，检查存储键:', devBackupKeys);
+      
+      // 先检查所有存储键
+      try {
+        var allKeys = wx.getStorageInfoSync().keys;
+        console.log('当前所有存储键:', allKeys);
+      } catch (e) {
+        console.log('获取存储键失败:', e);
+      }
+      
+      for (var i = 0; i < devBackupKeys.length; i++) {
+        var backupKey = devBackupKeys[i];
+        console.log('检查备份键:', backupKey);
+        var backupData = this.getCardsFromStorage(backupKey);
+        console.log('备份数据:', backupKey, backupData);
+        
+        if (backupData && backupData.length > 0) {
+          console.log('从开发模式备份恢复成功:', backupKey, backupData.length, '张卡片');
+          
+          // 恢复数据到主存储
+          this.saveCardsToStorage(this.storageKey, backupData);
+          
+          // 创建新的备份
+          this.createMultipleBackups(backupData);
+          
+          return backupData;
+        }
+      }
+      
+      console.log('所有开发模式备份都为空');
+      
+      // 尝试从云存储恢复
+      return this.restoreFromCloudBackup();
+    } catch (error) {
+      console.error('从开发模式备份恢复失败:', error);
+      return null;
+    }
+  }
+
+  // 从云存储恢复
+  restoreFromCloudBackup() {
+    try {
+      console.log('尝试从云存储恢复数据');
+      
+      // 尝试从固定的云备份键恢复
+      var cloudData = wx.getStorageSync('cloud_backup_latest');
+      if (cloudData) {
+        var parsedData = JSON.parse(cloudData);
+        if (parsedData && parsedData.cards && parsedData.cards.length > 0) {
+          console.log('从云存储恢复成功:', parsedData.cards.length, '张卡片');
+          
+          // 恢复数据到主存储
+          this.saveCardsToStorage(this.storageKey, parsedData.cards);
+          
+          // 创建新的备份
+          this.createMultipleBackups(parsedData.cards);
+          
+          return parsedData.cards;
+        }
+      }
+      
+      // 尝试从时间戳云备份恢复
+      try {
+        var allKeys = wx.getStorageInfoSync().keys;
+        var cloudBackupKeys = allKeys.filter(function(key) {
+          return key.startsWith('cloud_backup_') && key !== 'cloud_backup_latest';
+        });
+        
+        // 按时间戳排序，获取最新的
+        cloudBackupKeys.sort(function(a, b) {
+          var timestampA = parseInt(a.replace('cloud_backup_', ''));
+          var timestampB = parseInt(b.replace('cloud_backup_', ''));
+          return timestampB - timestampA;
+        });
+        
+        for (var i = 0; i < cloudBackupKeys.length; i++) {
+          var backupKey = cloudBackupKeys[i];
+          var backupData = wx.getStorageSync(backupKey);
+          if (backupData) {
+            var parsedData = JSON.parse(backupData);
+            if (parsedData && parsedData.cards && parsedData.cards.length > 0) {
+              console.log('从时间戳云存储恢复成功:', backupKey, parsedData.cards.length, '张卡片');
+              
+              // 恢复数据到主存储
+              this.saveCardsToStorage(this.storageKey, parsedData.cards);
+              
+              // 创建新的备份
+              this.createMultipleBackups(parsedData.cards);
+              
+              return parsedData.cards;
+            }
+          }
+        }
+      } catch (e) {
+        console.log('从时间戳云存储恢复失败:', e);
+      }
+      
+      console.log('云存储恢复失败');
+      return null;
+    } catch (error) {
+      console.error('从云存储恢复失败:', error);
+      return null;
     }
   }
 }

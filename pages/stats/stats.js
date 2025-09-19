@@ -5,17 +5,46 @@ Page({
     totalUsage: 0,
     totalValue: 0,
     categoryStats: [],
-    usageFrequency: [],
-    expiringCards: []
+    expiringCards: [],
+    safeTopPx: 0,
+    headerStyle: ''
   },
 
   onLoad: function() {
     console.log('统计页面加载');
+    try {
+      const info = wx.getSystemInfoSync();
+      const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+      const statusBar = info.statusBarHeight || 0;
+      // 以状态栏高度 + 44px 导航高度作为安全上边距，若存在胶囊则与其对齐
+      let safeTop = statusBar + 44;
+      if (menu && menu.top) {
+        safeTop = Math.max(safeTop, menu.top);
+      }
+      // 计算与首页一致的头部样式（顶铺姜黄色 + 深绿文字）
+      const headerStyle = `background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%); color: #156D57; padding: 88rpx 40rpx 40rpx; padding-top: ${safeTop}px;`;
+      this.setData({ safeTopPx: safeTop, headerStyle });
+    } catch (e) {
+      const headerStyleFallback = 'background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%); color: #156D57; padding: 88rpx 40rpx 40rpx; padding-top: 88px;';
+      this.setData({ safeTopPx: 88, headerStyle: headerStyleFallback });
+    }
     this.loadStatsData();
   },
 
   onShow: function() {
     console.log('统计页面显示');
+    // 再次进入时重算安全区与头部样式，防止刷新后样式回退
+    try {
+      const info = wx.getSystemInfoSync();
+      const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+      const statusBar = info.statusBarHeight || 0;
+      let safeTop = statusBar + 44;
+      if (menu && menu.top) {
+        safeTop = Math.max(safeTop, menu.top);
+      }
+      const headerStyle = `background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%); color: #156D57; padding: 88rpx 40rpx 40rpx; padding-top: ${safeTop}px;`;
+      this.setData({ safeTopPx: safeTop, headerStyle });
+    } catch (e) {}
     this.loadStatsData();
   },
 
@@ -45,8 +74,6 @@ Page({
       // 分类统计
       var categoryMap = {};
       
-      // 使用频率统计
-      var usageFrequency = [];
       
       // 即将到期的卡片
       var expiringCards = [];
@@ -75,16 +102,6 @@ Page({
         categoryMap[category].totalCount += card.totalCount;
         categoryMap[category].usedCount += card.usedCount;
         
-        // 使用频率（按使用率排序）
-        var usageRate = card.totalCount > 0 ? Math.round((card.usedCount / card.totalCount) * 100) : 0;
-        usageFrequency.push({
-          cardId: card.id,
-          name: card.name,
-          merchant: card.merchant,
-          usageCount: card.usedCount,
-          totalCount: card.totalCount,
-          usageRate: usageRate
-        });
         
         // 检查是否即将到期
         if (card.expireDate) {
@@ -123,10 +140,6 @@ Page({
         return b.count - a.count;
       });
       
-      // 使用频率排序（按使用率从高到低）
-      usageFrequency.sort(function(a, b) {
-        return b.usageRate - a.usageRate;
-      });
       
       // 到期提醒排序（按剩余天数从少到多）
       expiringCards.sort(function(a, b) {
@@ -139,7 +152,6 @@ Page({
         totalUsage: totalUsage,
         totalValue: totalValue,
         categoryStats: categoryStats,
-        usageFrequency: usageFrequency,
         expiringCards: expiringCards
       });
       
@@ -159,7 +171,6 @@ Page({
       totalUsage: 0,
       totalValue: 0,
       categoryStats: [],
-      usageFrequency: [],
       expiringCards: []
     });
   },

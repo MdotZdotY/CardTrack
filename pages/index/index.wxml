@@ -25,30 +25,18 @@
       </view>
       <view class="stat-divider"></view>
       <view class="stat-item">
-        <text class="stat-number">{{remainingCount}}</text>
-        <text class="stat-label">剩余次数</text>
+        <text class="stat-number">{{runningOut}}</text>
+        <text class="stat-label">即将用完</text>
       </view>
     </view>
+    
   </view>
   
   <!-- 卡片列表区 -->
   <view class="cards-section">
-    <!-- 筛选标签 -->
-    <view class="filter-tabs">
-      <view class="filter-tab {{currentFilter === 'all' ? 'active' : ''}}" bindtap="filterCards" data-filter="all">
-        <text>全部</text>
-      </view>
-      <view class="filter-tab {{currentFilter === 'expiring' ? 'active' : ''}}" bindtap="filterCards" data-filter="expiring">
-        <text>即将到期</text>
-      </view>
-      <view class="filter-tab {{currentFilter === 'active' ? 'active' : ''}}" bindtap="filterCards" data-filter="active">
-        <text>使用中</text>
-      </view>
-    </view>
-
     <!-- 卡片列表 -->
     <view class="cards-list" wx:if="{{filteredCards.length > 0}}">
-      <view class="card-item" wx:for="{{filteredCards}}" wx:key="id">
+      <view class="card-item {{item.isUsedUp ? 'used-up' : ''}}" wx:for="{{filteredCards}}" wx:key="id" bindtap="editCard" data-id="{{item.id}}">
         <view class="card-header">
           <view class="card-title">
             <text class="card-name">{{item.name}}</text>
@@ -65,12 +53,12 @@
             </view>
           </view>
           
-          <view class="card-actions">
-            <button class="btn btn-primary" bindtap="recordUsage" data-id="{{item.id}}" wx:if="{{item.canUse}}">
-              记录使用
-            </button>
+          <view class="card-actions" catchtap="stopPropagation">
             <button class="btn btn-secondary" bindtap="viewDetail" data-id="{{item.id}}">
               详情
+            </button>
+            <button class="btn btn-primary" bindtap="recordUsage" data-id="{{item.id}}" wx:if="{{item.canUse}}">
+              记录使用
             </button>
           </view>
         </view>
@@ -85,12 +73,87 @@
     <view class="empty-state" wx:if="{{filteredCards.length === 0}}">
       <text class="empty-icon">📱</text>
       <text class="empty-text">暂无套餐卡</text>
-      <text class="empty-hint">点击下方"+"按钮添加您的第一张套餐卡</text>
+      <text class="empty-hint">点击底部导航栏的"+"按钮添加您的第一张套餐卡</text>
     </view>
   </view>
 
-  <!-- 浮动添加按钮 -->
-  <view class="fab" bindtap="addCard">+</view>
+  
+  <!-- 记录使用弹窗 -->
+  <view class="modal-overlay" wx:if="{{showRecordModal}}" bindtap="closeRecordModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">记录使用</text>
+        <text class="modal-close" bindtap="closeRecordModal">×</text>
+      </view>
+      
+      <view class="modal-body">
+        <!-- 使用时间选择 -->
+        <view class="form-item">
+          <text class="form-label">使用时间 *</text>
+          <view class="form-picker" bindtap="showRecordDatePicker">
+            <view class="picker-text">
+              {{recordForm.useDate || '请选择使用时间'}}
+            </view>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </view>
+        
+        <!-- 日期选择器 - 嵌入在弹窗中 -->
+        <view class="inline-date-picker" wx:if="{{showRecordDatePicker}}">
+          <view class="date-picker-header">
+            <text class="date-picker-cancel" bindtap="hideRecordDatePicker">取消</text>
+            <text class="date-picker-title">选择使用时间</text>
+            <text class="date-picker-confirm" bindtap="confirmRecordDateSelection">确定</text>
+          </view>
+          
+          <view class="date-picker-content">
+            <picker-view class="date-picker-view" 
+                         value="{{recordDatePickerValue}}" 
+                         bindchange="onRecordDatePickerChange">
+              <picker-view-column>
+                <view wx:for="{{recordYears}}" wx:key="index" class="date-picker-item">{{item}}年</view>
+              </picker-view-column>
+              <picker-view-column>
+                <view wx:for="{{recordMonths}}" wx:key="index" class="date-picker-item">{{item}}月</view>
+              </picker-view-column>
+              <picker-view-column>
+                <view wx:for="{{recordDays}}" wx:key="index" class="date-picker-item">{{item}}日</view>
+              </picker-view-column>
+            </picker-view>
+          </view>
+        </view>
+        
+        <!-- 使用次数输入 -->
+        <view class="form-item">
+          <text class="form-label">使用次数 *</text>
+          <input class="form-input" 
+                 type="number"
+                 name="useCount" 
+                 value="{{recordForm.useCount}}"
+                 placeholder="请输入使用次数"
+                 bindinput="onUseCountInput"
+                 data-field="useCount" />
+        </view>
+        
+        <!-- 卡片信息显示 -->
+        <view class="card-info-display" wx:if="{{selectedCard}}">
+          <text class="info-label">当前卡片：</text>
+          <text class="info-text">{{selectedCard.name}} - {{selectedCard.merchant}}</text>
+          <text class="info-label">剩余次数：</text>
+          <text class="info-text">{{selectedCard.totalCount - selectedCard.usedCount}} / {{selectedCard.totalCount}}</text>
+        </view>
+      </view>
+      
+      <view class="modal-footer">
+        <button class="btn btn-secondary" bindtap="closeRecordModal">取消</button>
+        <button class="btn btn-primary" bindtap="confirmRecordUsage" disabled="{{!isRecordFormValid}}">
+          确认记录
+        </button>
+      </view>
+      
+    </view>
+  </view>
+  
   
   <!-- 自定义底部导航栏 -->
   <custom-tabbar current-tab="{{0}}"></custom-tabbar>

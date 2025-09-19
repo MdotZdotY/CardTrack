@@ -2,8 +2,8 @@
 <view class="container">
   <view class="form-container">
     <view class="form-header">
-      <text class="form-title">添加套餐卡</text>
-      <text class="form-subtitle">记录您的套餐卡信息</text>
+      <text class="form-title">{{isEditMode ? '编辑套餐卡' : '添加套餐卡'}}</text>
+      <text class="form-subtitle">{{isEditMode ? '修改您的套餐卡信息' : '记录您的套餐卡信息'}}</text>
     </view>
     
     <form bindsubmit="submitForm">
@@ -32,14 +32,12 @@
       <!-- 分类选择 -->
       <view class="form-item">
         <text class="form-label">分类</text>
-        <picker class="form-picker" 
-                range="{{categories}}" 
-                value="{{categoryIndex}}"
-                bindchange="onCategoryChange">
-          <view class="picker-text">
+        <view class="form-picker" bindtap="showCategoryPicker">
+          <text class="picker-text">
             {{categories[categoryIndex]}}
-          </view>
-        </picker>
+          </text>
+          <text class="picker-arrow">▼</text>
+        </view>
       </view>
       
       <!-- 总次数 -->
@@ -54,44 +52,39 @@
                data-field="totalCount" />
       </view>
       
-      <!-- 已用次数 -->
+      <!-- 总金额 -->
       <view class="form-item">
-        <text class="form-label">已用次数</text>
+        <text class="form-label">总金额 *</text>
         <input class="form-input" 
-               type="number"
-               name="usedCount" 
-               value="{{formData.usedCount}}"
-               placeholder="请输入已用次数"
-               bindinput="onInputChange"
-               data-field="usedCount" />
+               type="digit"
+               name="totalAmount" 
+               value="{{formData.totalAmount}}"
+               placeholder="请输入总金额（元）"
+               bindinput="onAmountInput"
+               bindblur="onAmountBlur"
+               data-field="totalAmount" />
       </view>
       
       <!-- 购买日期 -->
       <view class="form-item">
         <text class="form-label">购买日期</text>
-        <picker class="form-picker" 
-                mode="date" 
-                value="{{formData.purchaseDate}}"
-                bindchange="onDateChange"
-                data-field="purchaseDate">
+        <view class="form-picker" bindtap="showDatePicker" data-field="purchaseDate">
           <view class="picker-text">
             {{formData.purchaseDate || '请选择购买日期'}}
           </view>
-        </picker>
+          <text class="picker-arrow">▼</text>
+        </view>
       </view>
       
       <!-- 到期日期 -->
       <view class="form-item">
         <text class="form-label">到期日期</text>
-        <picker class="form-picker" 
-                mode="date" 
-                value="{{formData.expireDate}}"
-                bindchange="onDateChange"
-                data-field="expireDate">
+        <view class="form-picker" bindtap="showDatePicker" data-field="expireDate">
           <view class="picker-text">
             {{formData.expireDate || '请选择到期日期'}}
           </view>
-        </picker>
+          <text class="picker-arrow">▼</text>
+        </view>
       </view>
       
       <!-- 备注 -->
@@ -111,9 +104,58 @@
       <view class="form-actions">
         <button class="btn btn-secondary" bindtap="cancel">取消</button>
         <button class="btn btn-primary" form-type="submit" disabled="{{!isFormValid}}">
-          保存
+          {{isEditMode ? '保存修改' : '保存'}}
         </button>
       </view>
     </form>
+  </view>
+  
+<!-- 自定义分类选择弹窗 -->
+<view class="category-picker-overlay" wx:if="{{showCategoryPicker}}" bindtap="hideCategoryPicker" catchtouchmove="preventTouchMove">
+  <view class="category-picker-modal" catchtap="stopPropagation" catchtouchmove="preventTouchMove">
+    <view class="picker-header">
+      <text class="picker-cancel" bindtap="hideCategoryPicker">取消</text>
+      <text class="picker-title">选择分类</text>
+      <text class="picker-confirm" bindtap="confirmCategorySelection">确定</text>
+    </view>
+    
+    <view class="picker-content" catchtouchmove="preventTouchMove">
+      <view class="picker-item {{tempCategoryIndex === index ? 'selected' : ''}}" 
+            wx:for="{{categories}}" 
+            wx:key="index" 
+            wx:for-index="index"
+            bindtap="selectCategory" 
+            data-index="{{index}}">
+        <text class="picker-item-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+</view>
+
+<!-- 日期选择器弹窗 -->
+<view class="date-picker-overlay" wx:if="{{showDatePicker}}" bindtap="hideDatePicker" catchtouchmove="preventTouchMove">
+  <view class="date-picker-modal" catchtap="stopPropagation" catchtouchmove="preventTouchMove">
+    <view class="date-picker-header">
+      <text class="date-picker-cancel" bindtap="hideDatePicker">取消</text>
+      <text class="date-picker-title">{{datePickerTitle}}</text>
+      <text class="date-picker-confirm" bindtap="confirmDateSelection">确定</text>
+    </view>
+    
+    <view class="date-picker-content" catchtouchmove="preventTouchMove">
+      <picker-view class="date-picker-view" 
+                   value="{{datePickerValue}}" 
+                   bindchange="onDatePickerChange">
+        <picker-view-column>
+          <view wx:for="{{years}}" wx:key="*this" class="date-picker-item-text">{{item}}年</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{months}}" wx:key="*this" class="date-picker-item-text">{{item}}月</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{days}}" wx:key="*this" class="date-picker-item-text">{{item}}日</view>
+        </picker-view-column>
+      </picker-view>
+    </view>
   </view>
 </view>

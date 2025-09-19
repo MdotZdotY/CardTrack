@@ -52,3 +52,29 @@
 .tabbar-item:active .tabbar-text {
   transform: scale(0.95);
 }
+
+/* 添加按钮样式 */
+.add-button {
+  background: linear-gradient(135deg, #FCC96E, #FDD89A);
+  border-radius: 50%;
+  width: 80rpx;
+  height: 80rpx;
+  margin: 10rpx auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(252, 201, 110, 0.3);
+  transition: all 0.3s ease;
+}
+
+.add-button:active {
+  transform: scale(0.9);
+  box-shadow: 0 2rpx 8rpx rgba(252, 201, 110, 0.5);
+}
+
+.add-icon {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #156D57;
+  line-height: 1;
+}

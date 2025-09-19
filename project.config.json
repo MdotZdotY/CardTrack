@@ -43,7 +43,7 @@
     "packNpmRelationList": [],
     "minifyWXSS": false,
     "disableUseStrict": true,
-    "minifyWXML": false,
+    "minifyWXML": true,
     "showES6CompileOption": false,
     "useCompilerPlugins": false,
     "compileWorklet": false,

@@ -3,7 +3,6 @@
     "pages/index/index",
     "pages/add-card/add-card",
     "pages/stats/stats",
-    "pages/settings/settings",
     "pages/reminder-settings/reminder-settings"
   ],
   "window": {

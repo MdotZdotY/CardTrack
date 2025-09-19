@@ -8,7 +8,7 @@
 /* 页面标题 */
 .page-header {
   background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%);
-  padding: 60rpx 40rpx 40rpx;
+  padding: calc(env(safe-area-inset-top) + 60rpx) 40rpx 40rpx;
   color: #156D57;
   text-align: center;
 }
