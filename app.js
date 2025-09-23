@@ -1,5 +1,6 @@
 // app.js - 小程序入口文件
 var ReminderManager = require('./utils/ReminderManager.js');
+var NotificationManager = require('./utils/NotificationManager.js');
 var DataManager = require('./utils/DataManager.js');
 var DataBackupManager = require('./utils/DataBackupManager.js');
 
@@ -13,11 +14,16 @@ App({
     this.initDataManager();
     this.initBackupManager();
     this.initReminderManager();
+    this.initNotificationManager();
   },
 
   onShow: function() {
     console.log('小程序显示');
-    this.checkReminders();
+    // 只在应用启动时检查提醒，避免重复弹窗
+    if (!this.hasCheckedReminders) {
+      this.checkReminders();
+      this.hasCheckedReminders = true;
+    }
     this.checkDataIntegrity();
   },
 
@@ -56,6 +62,16 @@ App({
     }
   },
 
+  // 初始化通知管理器
+  initNotificationManager: function() {
+    try {
+      this.notificationManager = new NotificationManager();
+      console.log('通知管理器初始化完成');
+    } catch (error) {
+      console.error('通知管理器初始化失败:', error);
+    }
+  },
+
   // 检查提醒
   checkReminders: function() {
     try {
@@ -63,7 +79,13 @@ App({
         // 获取套餐卡数据
         var cards = this.dataManager.getCards();
         if (cards.length > 0) {
+          // 使用基础提醒管理器
           this.reminderManager.checkAndShowReminders(cards);
+          
+          // 使用高级通知管理器
+          if (this.notificationManager) {
+            this.notificationManager.checkAndSendNotifications(cards);
+          }
         }
       }
     } catch (error) {
@@ -110,5 +132,18 @@ App({
   // 获取提醒管理器
   getReminderManager: function() {
     return this.reminderManager;
+  },
+
+  // 获取通知管理器
+  getNotificationManager: function() {
+    return this.notificationManager;
+  },
+
+  // 重置提醒检查状态（用于测试或特殊情况）
+  resetReminderCheck: function() {
+    this.hasCheckedReminders = false;
+    if (this.reminderManager) {
+      this.reminderManager.clearTodayReminderFlags();
+    }
   }
 });

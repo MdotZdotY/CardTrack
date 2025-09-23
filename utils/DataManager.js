@@ -409,7 +409,8 @@ class DataManager {
         return false;
       }
       
-      if (useCount > (card.totalCount - card.usedCount)) {
+      // 对于不限次数卡片，不检查使用次数限制
+      if (typeof card.totalCount === 'number' && useCount > (card.totalCount - card.usedCount)) {
         console.error('使用次数超过剩余次数');
         return false;
       }

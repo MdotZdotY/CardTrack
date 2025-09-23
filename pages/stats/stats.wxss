@@ -8,6 +8,7 @@
 
 .page-content {
   padding: 0 40rpx;
+  padding-top: 60rpx;
 }
 
 .safe-top { height: calc(env(safe-area-inset-top) + 44px); }

@@ -4,13 +4,15 @@ Page({
     formData: {
       name: '',
       merchant: '',
-      category: '其它',
-      totalCount: 1,
+      category: '餐饮',
+      totalCount: '不限',
+      usedCount: '',
       totalAmount: '',
       purchaseDate: '',
       expireDate: '',
       notes: ''
     },
+    isUnlimitedCard: true, // 默认是不限次数卡片
     categories: ['餐饮', '出行', '休闲娱乐', '文体教育', '服饰美容', '生活日用', '医疗保健', '其它'],
     categoryIndex: 0,
     isFormValid: false,
@@ -36,6 +38,9 @@ Page({
     
     // 初始化日期选择器数据
     this.initDatePickerData();
+    
+    // 设置默认购买日期为今天
+    this.setDefaultPurchaseDate();
     
     // 检查是否是编辑模式
     if (options && options.cardId) {
@@ -73,6 +78,18 @@ Page({
     });
   },
 
+  // 设置默认购买日期为今天
+  setDefaultPurchaseDate: function() {
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + 
+                   String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(today.getDate()).padStart(2, '0');
+    
+    this.setData({
+      'formData.purchaseDate': todayStr
+    });
+  },
+
   // 通用输入处理方法
   onInputChange: function(e) {
     var field = e.currentTarget.dataset.field;
@@ -82,6 +99,32 @@ Page({
       ['formData.' + field]: value
     });
     
+    this.checkFormValidity();
+  },
+
+  // 总次数输入处理方法
+  onTotalCountInput: function(e) {
+    var value = e.detail.value;
+    
+    // 判断是否为不限次数卡片
+    var isUnlimited = value === '' || value === '不限' || isNaN(value);
+    
+    this.setData({
+      'formData.totalCount': value,
+      isUnlimitedCard: isUnlimited
+    });
+    
+    this.checkFormValidity();
+  },
+
+  // 已使用次数输入处理方法（仅编辑模式可见）
+  onUsedCountInput: function(e) {
+    var value = e.detail.value;
+    // 仅保留数字
+    var clean = String(value).replace(/[^\d]/g, '');
+    this.setData({
+      'formData.usedCount': clean
+    });
     this.checkFormValidity();
   },
 
@@ -226,16 +269,21 @@ Page({
         categoryIndex = this.data.categories.indexOf('其它');
       }
       
+      // 判断是否为不限次数卡片
+      var isUnlimited = typeof cardToEdit.totalCount !== 'number';
+      
       // 设置编辑模式数据
       this.setData({
         isEditMode: true,
         editCardId: cardId,
         originalCard: cardToEdit,
+        isUnlimitedCard: isUnlimited,
         formData: {
           name: cardToEdit.name || '',
           merchant: cardToEdit.merchant || '',
           category: cardToEdit.category || '其它',
-          totalCount: cardToEdit.totalCount || 1,
+          totalCount: cardToEdit.totalCount ? String(cardToEdit.totalCount) : '不限',
+          usedCount: typeof cardToEdit.usedCount === 'number' ? String(cardToEdit.usedCount) : '0',
           totalAmount: cardToEdit.totalAmount ? cardToEdit.totalAmount.toString() : '',
           purchaseDate: cardToEdit.purchaseDate || '',
           expireDate: cardToEdit.expireDate || '',
@@ -263,11 +311,56 @@ Page({
   // 检查表单有效性
   checkFormValidity: function() {
     var formData = this.data.formData;
+    var isUnlimitedCard = this.data.isUnlimitedCard;
+    
+    // 检查总次数是否有效（数字且大于0，或者是"不限"等非数字字符串）
+    var isTotalCountValid = false;
+    if (formData.totalCount !== null && formData.totalCount !== undefined && formData.totalCount !== '') {
+      // 将totalCount转换为字符串进行处理
+      var totalCountStr = String(formData.totalCount).trim();
+      // 如果是数字，检查是否大于0
+      if (!isNaN(totalCountStr) && parseFloat(totalCountStr) > 0) {
+        isTotalCountValid = true;
+      }
+      // 如果是非数字字符串（如"不限"、"∞"等），也认为是有效的
+      else if (isNaN(totalCountStr)) {
+        isTotalCountValid = true;
+      }
+    }
+    
+    // 检查到期日期：不限次数卡片时必填，有限次数卡片时可选
+    var isExpireDateValid = true;
+    if (isUnlimitedCard) {
+      isExpireDateValid = formData.expireDate && formData.expireDate.trim() !== '';
+    }
+
+    // 校验已使用次数（仅编辑模式时参与校验）
+    var isUsedCountValid = true;
+    if (this.data.isEditMode) {
+      var usedStr = String(formData.usedCount == null ? '' : formData.usedCount).trim();
+      if (usedStr === '' || isNaN(usedStr)) {
+        isUsedCountValid = false;
+      } else {
+        var usedNum = parseInt(usedStr, 10);
+        isUsedCountValid = usedNum >= 0;
+        // 若总次数是数字，限制 usedCount <= totalCount
+        var totalCountStr = String(formData.totalCount).trim();
+        if (!isNaN(totalCountStr)) {
+          var totalNum = parseInt(totalCountStr, 10);
+          if (isFinite(totalNum)) {
+            isUsedCountValid = isUsedCountValid && usedNum <= totalNum;
+          }
+        }
+      }
+    }
+    
     var isValid = formData.name.trim() !== '' && 
                   formData.merchant.trim() !== '' && 
-                  formData.totalCount > 0 &&
+                  isTotalCountValid &&
                   formData.totalAmount.trim() !== '' &&
-                  parseFloat(formData.totalAmount) > 0;
+                  parseFloat(formData.totalAmount) > 0 &&
+                  isExpireDateValid &&
+                  isUsedCountValid;
     
     this.setData({
       isFormValid: isValid
@@ -300,10 +393,34 @@ Page({
         return;
       }
       
-      if (formData.totalCount <= 0) {
+      // 验证总次数
+      var totalCountStr = String(formData.totalCount).trim();
+      if (!totalCountStr) {
+        wx.showModal({
+          title: '输入错误',
+          content: '总次数不能为空',
+          showCancel: false,
+          confirmText: '知道了'
+        });
+        return;
+      }
+      
+      // 如果是数字，检查是否大于0
+      if (!isNaN(totalCountStr) && parseFloat(totalCountStr) <= 0) {
         wx.showModal({
           title: '输入错误',
           content: '总次数必须大于0',
+          showCancel: false,
+          confirmText: '知道了'
+        });
+        return;
+      }
+      
+      // 检查到期日期：不限次数卡片时必填
+      if (this.data.isUnlimitedCard && (!formData.expireDate || formData.expireDate.trim() === '')) {
+        wx.showModal({
+          title: '输入错误',
+          content: '不限次数卡片的到期日期为必填项',
           showCancel: false,
           confirmText: '知道了'
         });
@@ -341,7 +458,8 @@ Page({
           name: formData.name.trim(),
           merchant: formData.merchant.trim(),
           category: formData.category,
-          totalCount: parseInt(formData.totalCount),
+          totalCount: isNaN(formData.totalCount) ? formData.totalCount : parseInt(formData.totalCount),
+          usedCount: isNaN(formData.usedCount) ? this.data.originalCard.usedCount || 0 : parseInt(formData.usedCount),
           totalAmount: parseFloat(formData.totalAmount),
           purchaseDate: formData.purchaseDate,
           expireDate: formData.expireDate,
@@ -355,7 +473,7 @@ Page({
           name: formData.name.trim(),
           merchant: formData.merchant.trim(),
           category: formData.category,
-          totalCount: parseInt(formData.totalCount),
+          totalCount: isNaN(formData.totalCount) ? formData.totalCount : parseInt(formData.totalCount),
           totalAmount: parseFloat(formData.totalAmount),
           usedCount: 0,
           usedAmount: 0,
@@ -461,17 +579,24 @@ Page({
 
   // 重置表单
   onReset: function() {
+    // 设置默认购买日期为今天
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + 
+                   String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(today.getDate()).padStart(2, '0');
+    
     this.setData({
       formData: {
         name: '',
         merchant: '',
-        category: '其它',
-        totalCount: 1,
+        category: '餐饮',
+        totalCount: '不限',
         totalAmount: '',
-        purchaseDate: '',
+        purchaseDate: todayStr,
         expireDate: '',
         notes: ''
       },
+      isUnlimitedCard: true,
       categoryIndex: 0,
       isFormValid: false
     });

@@ -247,6 +247,11 @@
   text-align: right;
 }
 
+/* 右对齐输入框样式 */
+.form-input-right {
+  text-align: right;
+}
+
 /* 日期选择器弹窗样式 */
 .date-picker-overlay {
   position: fixed;

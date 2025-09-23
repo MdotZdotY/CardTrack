@@ -2,6 +2,9 @@
 Page({
   data: {
     totalCards: 0,
+    effectiveCards: 0,
+    expiredCards: 0,
+    usedUpCards: 0,
     totalUsage: 0,
     totalValue: 0,
     categoryStats: [],
@@ -70,6 +73,9 @@ Page({
       var totalCards = cards.length;
       var totalUsage = 0;
       var totalValue = 0;
+      var effectiveCards = 0;
+      var expiredCards = 0;
+      var usedUpCards = 0;
       
       // 分类统计
       var categoryMap = {};
@@ -85,9 +91,33 @@ Page({
         // 累计使用次数
         totalUsage += card.usedCount;
         
-        // 累计总价值（这里用总次数代替，实际项目中可能需要价格字段）
-        totalValue += card.totalCount;
-        
+        // 累计总价值（所有卡片的金额总和）
+        if (card.totalAmount && !isNaN(card.totalAmount)) {
+          totalValue += parseFloat(card.totalAmount);
+        }
+        // 计算是否过期
+        var isExpired = false;
+        if (card.expireDate) {
+          var expireDateForValid = new Date(card.expireDate);
+          if (Math.ceil((expireDateForValid - now) / (1000 * 60 * 60 * 24)) <= 0) {
+            isExpired = true;
+          }
+        }
+        if (isExpired) {
+          expiredCards++;
+        }
+
+        // 计算是否可用（不限次数或剩余次数>0）且未过期
+        var isUnlimited = typeof card.totalCount !== 'number';
+        var remaining = typeof card.totalCount === 'number' ? (card.totalCount - card.usedCount) : null;
+        var hasRemaining = isUnlimited || (typeof card.totalCount === 'number' && remaining > 0);
+        if (!isUnlimited && typeof remaining === 'number' && remaining <= 0) {
+          usedUpCards++;
+        }
+        if (!isExpired && hasRemaining) {
+          effectiveCards++;
+        }
+
         // 分类统计
         var category = card.category || '其他';
         if (!categoryMap[category]) {
@@ -99,7 +129,10 @@ Page({
           };
         }
         categoryMap[category].count++;
-        categoryMap[category].totalCount += card.totalCount;
+        // 对于不限次数卡片，不累计到总次数中
+        if (typeof card.totalCount === 'number') {
+          categoryMap[category].totalCount += card.totalCount;
+        }
         categoryMap[category].usedCount += card.usedCount;
         
         
@@ -109,12 +142,16 @@ Page({
           var daysUntilExpire = Math.ceil((expireDate - now) / (1000 * 60 * 60 * 24));
           
           if (daysUntilExpire <= 30 && daysUntilExpire > 0) {
+            // 计算剩余次数，不限次数卡片显示为"不限"
+            var remainingCount = typeof card.totalCount === 'number' ? 
+              (card.totalCount - card.usedCount) : '不限';
+            
             expiringCards.push({
               id: card.id,
               name: card.name,
               merchant: card.merchant,
               daysLeft: daysUntilExpire,
-              remainingCount: card.totalCount - card.usedCount
+              remainingCount: remainingCount
             });
           }
         }
@@ -149,8 +186,11 @@ Page({
       // 设置数据
       this.setData({
         totalCards: totalCards,
+        effectiveCards: effectiveCards,
+        expiredCards: expiredCards,
+        usedUpCards: usedUpCards,
         totalUsage: totalUsage,
-        totalValue: totalValue,
+        totalValue: (totalValue / 10000).toFixed(2), // 转换为万元，保留2位小数
         categoryStats: categoryStats,
         expiringCards: expiringCards
       });
@@ -168,8 +208,11 @@ Page({
   setDefaultData: function() {
     this.setData({
       totalCards: 0,
+      effectiveCards: 0,
+      expiredCards: 0,
+      usedUpCards: 0,
       totalUsage: 0,
-      totalValue: 0,
+      totalValue: '0.00', // 万元单位，保留2位小数
       categoryStats: [],
       expiringCards: []
     });

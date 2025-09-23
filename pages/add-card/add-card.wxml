@@ -43,13 +43,24 @@
       <!-- 总次数 -->
       <view class="form-item">
         <text class="form-label">总次数 *</text>
-        <input class="form-input" 
-               type="number"
+        <input class="form-input form-input-right" 
                name="totalCount" 
                value="{{formData.totalCount}}"
-               placeholder="请输入总次数"
-               bindinput="onInputChange"
+               placeholder="不限"
+               bindinput="onTotalCountInput"
                data-field="totalCount" />
+      </view>
+
+      <!-- 已使用次数（仅编辑模式显示） -->
+      <view class="form-item" wx:if="{{isEditMode}}">
+        <text class="form-label">已使用次数 *</text>
+        <input class="form-input form-input-right" 
+               name="usedCount" 
+               type="number"
+               value="{{formData.usedCount}}"
+               placeholder="请输入已使用次数"
+               bindinput="onUsedCountInput"
+               data-field="usedCount" />
       </view>
       
       <!-- 总金额 -->
@@ -78,7 +89,7 @@
       
       <!-- 到期日期 -->
       <view class="form-item">
-        <text class="form-label">到期日期</text>
+        <text class="form-label">到期日期{{isUnlimitedCard ? ' *' : ''}}</text>
         <view class="form-picker" bindtap="showDatePicker" data-field="expireDate">
           <view class="picker-text">
             {{formData.expireDate || '请选择到期日期'}}

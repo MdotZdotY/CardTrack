@@ -269,7 +269,8 @@
 }
 
 .card-category {
-  display: inline-block;
+  display: flex;
+  align-items: center;
   background: rgba(252, 201, 110, 0.1);
   color: #FCC96E;
   font-size: 22rpx;
@@ -277,16 +278,28 @@
   border-radius: 16rpx;
 }
 
+.reminder-icon {
+  font-size: 20rpx;
+  margin-right: 6rpx;
+  animation: blink 2s infinite;
+}
+
+.category-text {
+  font-size: 22rpx;
+}
+
+/* 红色灯泡闪烁动画 */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
 .card-progress {
   margin-bottom: 24rpx;
 }
 
 .progress-bar {
-  height: 8rpx;
-  background: #F0F0F0;
-  border-radius: 4rpx;
-  overflow: hidden;
-  margin-bottom: 8rpx;
+  display: none; /* 去除分割线式进度条，保持卡片显示一致 */
 }
 
 .progress-fill {
@@ -306,6 +319,16 @@
 .card-actions {
   display: flex;
   gap: 16rpx;
+  justify-content: flex-end; /* 右对齐按钮 */
+  width: 100%; /* 占满行，保证与上方分类标签右侧对齐 */
+}
+.card-actions button {
+  margin-right: 0;
+}
+
+/* 确保分类标签紧贴卡片右内边距 */
+.card-category {
+  margin-right: 0;
 }
 
 .action-btn {
@@ -326,6 +349,13 @@
 .btn-primary:active {
   background: #E6B85A;
   transform: scale(0.95);
+}
+
+/* 卡片内“记录使用”按钮调窄 */
+.card-actions .btn-primary {
+  padding: 12rpx 16rpx; /* 上下12，左右16：缩小左右宽度 */
+  font-size: 24rpx;
+  border-radius: 16rpx;
 }
 
 .btn-secondary {

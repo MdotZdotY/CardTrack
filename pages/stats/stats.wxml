@@ -10,16 +10,16 @@
   <!-- 统计概览 -->
   <view class="stats-overview">
     <view class="stat-card">
-      <text class="stat-number">{{totalCards}}</text>
-      <text class="stat-label">总卡片数</text>
+      <text class="stat-number">{{effectiveCards}} / {{totalCards}}</text>
+      <text class="stat-label">有效卡 / 总卡片</text>
     </view>
     <view class="stat-card">
-      <text class="stat-number">{{totalUsage}}</text>
-      <text class="stat-label">总使用次数</text>
+      <text class="stat-number">{{expiredCards}} / {{usedUpCards}}</text>
+      <text class="stat-label">已过期 / 已用完</text>
     </view>
     <view class="stat-card">
       <text class="stat-number">{{totalValue}}</text>
-      <text class="stat-label">总价值</text>
+      <text class="stat-label">总价值(万元)</text>
     </view>
   </view>
 
@@ -44,7 +44,8 @@
   </view>
   
 
-  <!-- 到期提醒 -->
+  <!-- 到期提醒（按需隐藏，不在统计页展示列表） -->
+  <!--
   <view class="expiry-reminder" wx:if="{{expiringCards.length > 0}}">
     <text class="section-title">即将到期</text>
     <view class="expiry-list">
@@ -60,6 +61,7 @@
       </view>
     </view>
   </view>
+  -->
 
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{totalCards === 0}}">

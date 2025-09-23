@@ -42,22 +42,25 @@
             <text class="card-name">{{item.name}}</text>
             <text class="card-merchant">{{item.merchant}}</text>
           </view>
-          <view class="card-category">{{item.category}}</view>
+          <view class="card-category">
+            <text class="reminder-icon" wx:if="{{item.isExpiring || item.isRunningOut}}">💡</text>
+            <text class="category-text">{{item.category}}</text>
+          </view>
         </view>
         
         <view class="card-content">
           <view class="usage-info">
-            <text class="usage-text">已使用 {{item.usedCount}} / {{item.totalCount}} 次</text>
-            <view class="progress-bar">
+            <text class="usage-text">
+              <text wx:if="{{item.isUnlimited}}">已使用 {{item.usedCount}} 次（不限次数）</text>
+              <text wx:else>已使用 {{item.usedCount}} / {{item.totalCount}} 次</text>
+            </text>
+            <view class="progress-bar" wx:if="{{!item.isUnlimited}}">
               <view class="progress-fill" style="width: {{item.progress}}%"></view>
             </view>
           </view>
           
           <view class="card-actions" catchtap="stopPropagation">
-            <button class="btn btn-secondary" bindtap="viewDetail" data-id="{{item.id}}">
-              详情
-            </button>
-            <button class="btn btn-primary" bindtap="recordUsage" data-id="{{item.id}}" wx:if="{{item.canUse}}">
+            <button class="btn btn-primary" size="mini" bindtap="recordUsage" data-id="{{item.id}}" wx:if="{{item.canUse}}">
               记录使用
             </button>
           </view>
@@ -140,7 +143,10 @@
           <text class="info-label">当前卡片：</text>
           <text class="info-text">{{selectedCard.name}} - {{selectedCard.merchant}}</text>
           <text class="info-label">剩余次数：</text>
-          <text class="info-text">{{selectedCard.totalCount - selectedCard.usedCount}} / {{selectedCard.totalCount}}</text>
+          <text class="info-text">
+            <text wx:if="{{selectedCard.isUnlimited}}">不限</text>
+            <text wx:else>{{selectedCard.totalCount - selectedCard.usedCount}} / {{selectedCard.totalCount}}</text>
+          </text>
         </view>
       </view>
       

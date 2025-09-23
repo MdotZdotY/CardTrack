@@ -107,21 +107,48 @@ Page({
           }
         }
         
-        // 统计即将用完的卡片（剩余次数少于五次）
-        var remainingCount = card.totalCount - card.usedCount;
-        if (remainingCount <= 5 && remainingCount > 0) {
-          runningOutCards++;
+        // 统计即将用完的卡片
+        // 条件1：剩余次数 ≤ 2次
+        // 条件2：剩余次数百分比 < 10%
+        // 对于不限次数的卡片，不进行次数统计
+        if (typeof card.totalCount === 'number' && card.totalCount > 0) {
+          var remainingCount = card.totalCount - card.usedCount;
+          var remainingPercentage = (remainingCount / card.totalCount) * 100;
+          
+          // 双重判断：剩余次数≤2次 或 剩余百分比<10%
+          if ((remainingCount <= 2 && remainingCount > 0) || 
+              (remainingPercentage < 10 && remainingCount > 0)) {
+            runningOutCards++;
+          }
         }
       }
       
       // 转换为显示数据
       var displayCards = cards.map(function(card) {
-        var progress = card.totalCount > 0 ? Math.round((card.usedCount / card.totalCount) * 100) : 0;
-        var isExpiring = false;
-        var expireText = '';
-        var remainingCount = card.totalCount - card.usedCount;
-        var isUsedUp = remainingCount <= 0;
+        // 处理不限次数卡片
+        var isUnlimited = typeof card.totalCount !== 'number';
+        var progress = 0;
+        var remainingCount = 0;
+        var isUsedUp = false;
         
+        if (isUnlimited) {
+          // 不限次数卡片，进度显示为已使用次数
+          progress = 0; // 不限次数卡片不显示进度条
+          remainingCount = '不限';
+          isUsedUp = false; // 不限次数卡片永远不会用完
+        } else {
+          // 有限次数卡片
+          progress = card.totalCount > 0 ? Math.round((card.usedCount / card.totalCount) * 100) : 0;
+          remainingCount = card.totalCount - card.usedCount;
+          isUsedUp = remainingCount <= 0;
+        }
+        
+        var isExpiring = false;
+        var isExpired = false;
+        var isRunningOut = false;
+        var expireText = '';
+        
+        // 检查是否即将到期
         if (card.expireDate) {
           var expireDate = new Date(card.expireDate);
           var now = new Date();
@@ -131,9 +158,22 @@ Page({
             isExpiring = true;
             expireText = '还有' + daysUntilExpire + '天到期';
           } else if (daysUntilExpire <= 0) {
+            isExpired = true;
             expireText = '已过期';
           } else {
             expireText = '还有' + daysUntilExpire + '天到期';
+          }
+        }
+        
+        // 检查是否即将用完（仅限有限次数卡片）
+        if (!isUnlimited && typeof card.totalCount === 'number' && card.totalCount > 0) {
+          var remainingCount = card.totalCount - card.usedCount;
+          var remainingPercentage = (remainingCount / card.totalCount) * 100;
+          
+          // 双重判断：剩余次数≤2次 或 剩余百分比<10%
+          if ((remainingCount <= 2 && remainingCount > 0) || 
+              (remainingPercentage < 10 && remainingCount > 0)) {
+            isRunningOut = true;
           }
         }
         
@@ -141,10 +181,14 @@ Page({
           ...card,
           progress: progress,
           isExpiring: isExpiring,
+          isExpired: isExpired,
+          isRunningOut: isRunningOut,
           expireText: expireText,
-          canUse: remainingCount > 0,
+          // 仅当未过期且（不限次数或剩余次数>0）才可使用
+          canUse: !isExpired && (isUnlimited || remainingCount > 0),
           remainingCount: remainingCount,
-          isUsedUp: isUsedUp
+          isUsedUp: isUsedUp,
+          isUnlimited: isUnlimited
         };
       });
       
@@ -263,6 +307,16 @@ Page({
     var cardId = e.currentTarget.dataset.id;
     console.log('编辑卡片:', cardId);
     
+    // 找到对应卡片并校验是否允许编辑
+    var target = this.data.cards.find(function(card) { return card.id === cardId; });
+    if (target && (target.isUsedUp || target.isExpired)) {
+      wx.showToast({
+        title: '已用完或已过期不可编辑',
+        icon: 'none'
+      });
+      return;
+    }
+
     wx.navigateTo({
       url: '/pages/add-card/add-card?cardId=' + cardId,
       success: function() {
@@ -402,8 +456,12 @@ Page({
     var isValid = recordForm.useDate.trim() !== '' && 
                   recordForm.useCount.trim() !== '' &&
                   parseInt(recordForm.useCount) > 0 &&
-                  selectedCard &&
-                  parseInt(recordForm.useCount) <= (selectedCard.totalCount - selectedCard.usedCount);
+                  selectedCard;
+    
+    // 对于不限次数卡片，不检查使用次数限制
+    if (isValid && !selectedCard.isUnlimited) {
+      isValid = parseInt(recordForm.useCount) <= (selectedCard.totalCount - selectedCard.usedCount);
+    }
     
     this.setData({
       isRecordFormValid: isValid
@@ -424,17 +482,21 @@ Page({
     }
     
     var useCount = parseInt(recordForm.useCount);
-    var remainingCount = selectedCard.totalCount - selectedCard.usedCount;
     
-    // 验证使用次数
-    if (useCount > remainingCount) {
-      wx.showModal({
-        title: '输入错误',
-        content: '使用次数不能超过剩余次数',
-        showCancel: false,
-        confirmText: '知道了'
-      });
-      return;
+    // 对于不限次数卡片，不检查使用次数限制
+    if (!selectedCard.isUnlimited) {
+      var remainingCount = selectedCard.totalCount - selectedCard.usedCount;
+      
+      // 验证使用次数
+      if (useCount > remainingCount) {
+        wx.showModal({
+          title: '输入错误',
+          content: '使用次数不能超过剩余次数',
+          showCancel: false,
+          confirmText: '知道了'
+        });
+        return;
+      }
     }
     
     if (useCount <= 0) {
