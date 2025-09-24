@@ -26,24 +26,10 @@ class DataManager {
         cards = this.restoreFromBackup();
       }
       
-      // 如果还是没有数据，尝试从其他可能的存储位置恢复
-      if (!cards || cards.length === 0) {
-        console.log('备份恢复失败，尝试从其他位置恢复');
-        cards = this.restoreFromOtherLocations();
-      }
-      
-      // 如果还是没有数据，尝试从开发模式备份恢复
-      if (!cards || cards.length === 0) {
-        console.log('尝试从开发模式备份恢复');
-        cards = this.restoreFromDevBackup();
-      }
-      
-      // 如果有数据，创建多重备份
+      // 如果有数据，创建备份
       if (cards && cards.length > 0) {
-        console.log('数据恢复成功，创建多重备份');
-        this.createMultipleBackups(cards);
-        // 创建开发模式备份
-        this.createDevBackup(cards);
+        console.log('数据恢复成功，创建备份');
+        this.createBackup(cards);
       }
       
       // 记录数据状态
@@ -61,34 +47,11 @@ class DataManager {
       var storedVersion = wx.getStorageSync(this.versionKey);
       if (storedVersion && storedVersion !== this.currentVersion) {
         console.log('检测到版本更新:', storedVersion, '->', this.currentVersion);
-        this.handleVersionUpdate(storedVersion);
       }
       // 更新版本号
       wx.setStorageSync(this.versionKey, this.currentVersion);
     } catch (error) {
       console.error('版本检查失败:', error);
-    }
-  }
-
-  // 处理版本更新
-  handleVersionUpdate(oldVersion) {
-    try {
-      // 在版本更新时创建额外的备份
-      var cards = this.getCardsFromStorage(this.storageKey);
-      if (cards && cards.length > 0) {
-        var versionBackupKey = 'cards_version_' + oldVersion.replace(/\./g, '_');
-        wx.setStorageSync(versionBackupKey, cards);
-        console.log('创建版本备份:', versionBackupKey);
-      }
-      
-      // 标记需要迁移
-      wx.setStorageSync(this.migrationKey, {
-        fromVersion: oldVersion,
-        toVersion: this.currentVersion,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('版本更新处理失败:', error);
     }
   }
 
@@ -127,7 +90,7 @@ class DataManager {
           this.saveCardsToStorage(this.storageKey, backupData);
           
           // 创建新的备份
-          this.createMultipleBackups(backupData);
+          this.createBackup(backupData);
           
           return backupData;
         }
@@ -161,14 +124,7 @@ class DataManager {
           
           // 迁移数据到新位置
           this.saveCardsToStorage(this.storageKey, data);
-          this.createMultipleBackups(data);
-          
-          // 清理旧位置
-          try {
-            wx.removeStorageSync(key);
-          } catch (e) {
-            console.log('清理旧存储位置失败:', key);
-          }
+          this.createBackup(data);
           
           return data;
         }
@@ -181,30 +137,14 @@ class DataManager {
     }
   }
 
-  // 创建多重备份
-  createMultipleBackups(cards) {
+  // 创建备份
+  createBackup(cards) {
     try {
       // 主备份
       this.saveCardsToStorage(this.backupKey, cards);
-      
-      // 时间戳备份（保留最近5个）
-      var timestampBackupKey = 'cards_timestamp_' + Date.now();
-      this.saveCardsToStorage(timestampBackupKey, cards);
-      this.cleanupOldTimestampBackups();
-      
-      // 版本备份
-      var versionBackupKey = 'cards_version_' + this.currentVersion.replace(/\./g, '_');
-      this.saveCardsToStorage(versionBackupKey, cards);
-      
-      // 压缩备份（减少存储空间）
-      this.createCompressedBackup(cards);
-      
-      // 开发模式备份
-      this.createDevBackup(cards);
-      
-      console.log('多重备份创建完成');
+      console.log('备份创建完成');
     } catch (error) {
-      console.error('创建多重备份失败:', error);
+      console.error('创建备份失败:', error);
     }
   }
 
@@ -283,8 +223,8 @@ class DataManager {
         throw new Error('主存储保存失败');
       }
       
-      // 创建多重备份
-      this.createMultipleBackups(cards);
+      // 创建备份
+      this.createBackup(cards);
       
       // 验证保存结果
       var savedCards = this.getCardsFromStorage(this.storageKey);
@@ -738,7 +678,7 @@ class DataManager {
           this.saveCardsToStorage(this.storageKey, backupData);
           
           // 创建新的备份
-          this.createMultipleBackups(backupData);
+          this.createBackup(backupData);
           
           return backupData;
         }
@@ -770,7 +710,7 @@ class DataManager {
           this.saveCardsToStorage(this.storageKey, parsedData.cards);
           
           // 创建新的备份
-          this.createMultipleBackups(parsedData.cards);
+          this.createBackup(parsedData.cards);
           
           return parsedData.cards;
         }
@@ -802,7 +742,7 @@ class DataManager {
               this.saveCardsToStorage(this.storageKey, parsedData.cards);
               
               // 创建新的备份
-              this.createMultipleBackups(parsedData.cards);
+              this.createBackup(parsedData.cards);
               
               return parsedData.cards;
             }

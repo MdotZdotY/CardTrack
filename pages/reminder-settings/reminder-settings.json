@@ -1,6 +1,9 @@
 {
   "navigationStyle": "custom",
   "backgroundColor": "#FFF2DF",
-  "enablePullDownRefresh": false
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "custom-tabbar": "/components/custom-tabbar/custom-tabbar"
+  }
 }
 

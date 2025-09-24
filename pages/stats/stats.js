@@ -60,9 +60,20 @@ Page({
     try {
       console.log('开始加载统计数据');
       
-      // 从本地存储获取卡片数据
-      var cards = wx.getStorageSync('cards') || [];
-      console.log('获取到卡片数据:', cards);
+      // 从数据管理器获取卡片数据
+      var app = getApp();
+      var dataManager = app.getDataManager();
+      var cards = [];
+      
+      if (dataManager) {
+        // 使用数据管理器获取数据
+        cards = dataManager.getCards();
+        console.log('从数据管理器获取到卡片数据:', cards);
+      } else {
+        // 降级到直接存储
+        cards = wx.getStorageSync('cards') || [];
+        console.log('从本地存储获取到卡片数据(降级方案):', cards);
+      }
       
       if (cards.length === 0) {
         this.setDefaultData();
