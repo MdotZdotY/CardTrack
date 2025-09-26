@@ -142,7 +142,6 @@
     </view>
   </view>
 </view>
-</view>
 
 <!-- 日期选择器弹窗 -->
 <view class="date-picker-overlay" wx:if="{{showDatePicker}}" bindtap="hideDatePicker" catchtouchmove="preventTouchMove">
@@ -169,4 +168,5 @@
       </picker-view>
     </view>
   </view>
+</view>
 </view>

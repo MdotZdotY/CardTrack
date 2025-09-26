@@ -172,6 +172,16 @@ Page({
   },
 
   // 通用日期选择处理方法
+  onDateInputChange: function(e) {
+    var field = e.currentTarget.dataset.field;
+    var value = e.detail.value;
+    
+    this.setData({
+      ['formData.' + field]: value
+    });
+    
+    this.checkFormValidity();
+  },
 
   // 选择分类（保留原方法以兼容）
   onCategoryChange: function(e) {

@@ -26,8 +26,12 @@ Page({
 
   onLoad: function() {
     console.log('首页加载');
-    this.loadCardData();
-    this.initRecordDatePickerData();
+    try {
+      this.loadCardData();
+      this.initRecordDatePickerData();
+    } catch (error) {
+      console.error('首页加载失败:', error);
+    }
   },
 
   onShow: function() {
@@ -131,38 +135,72 @@ Page({
         var remainingCount = 0;
         var isUsedUp = false;
         
+        // 计算单价（总价值 / 已使用次数）
+        var unitPrice = 0;
+        var unitPriceText = '';
+        if (card.totalAmount && card.usedCount > 0) {
+          unitPrice = parseFloat(card.totalAmount) / card.usedCount;
+        }
+        
         if (isUnlimited) {
           // 不限次数卡片，进度显示为已使用次数
           progress = 0; // 不限次数卡片不显示进度条
           remainingCount = '不限';
           isUsedUp = false; // 不限次数卡片永远不会用完
+          // 不限次数卡片文案
+          unitPriceText = unitPrice > 0 ? unitPrice.toFixed(2) + '元/次（多用 才划算）' : '多用 才划算';
         } else {
           // 有限次数卡片
           progress = card.totalCount > 0 ? Math.round((card.usedCount / card.totalCount) * 100) : 0;
           remainingCount = card.totalCount - card.usedCount;
           isUsedUp = remainingCount <= 0;
+          // 有限次数卡片文案
+          unitPriceText = unitPrice > 0 ? unitPrice.toFixed(2) + '元/次（快用 别浪费）' : '快用 别浪费';
         }
         
         var isExpiring = false;
         var isExpired = false;
         var isRunningOut = false;
         var expireText = '';
+        var dateProgress = 0; // 日期进度条百分比
+        var dateProgressText = ''; // 日期进度条文字
         
-        // 检查是否即将到期
-        if (card.expireDate) {
+        // 计算日期进度条
+        if (card.expireDate && card.purchaseDate) {
           var expireDate = new Date(card.expireDate);
+          var purchaseDate = new Date(card.purchaseDate);
           var now = new Date();
+          
+          // 计算总有效天数（购买日期到到期日期）
+          var totalValidDays = Math.ceil((expireDate - purchaseDate) / (1000 * 60 * 60 * 24));
+          
+          // 计算已过天数（购买日期到今天）
+          var passedDays = Math.ceil((now - purchaseDate) / (1000 * 60 * 60 * 24));
+          
+          // 计算剩余天数
           var daysUntilExpire = Math.ceil((expireDate - now) / (1000 * 60 * 60 * 24));
           
-          if (daysUntilExpire <= 30 && daysUntilExpire > 0) {
-            isExpiring = true;
-            expireText = '还有' + daysUntilExpire + '天到期';
-          } else if (daysUntilExpire <= 0) {
-            isExpired = true;
-            expireText = '已过期';
+          // 确保数据合理性
+          if (totalValidDays > 0 && passedDays >= 0) {
+            // 计算进度百分比（已过天数 / 总有效天数）
+            dateProgress = Math.min(Math.max((passedDays / totalValidDays) * 100, 0), 100);
+            
+            // 设置进度条文字
+            if (daysUntilExpire <= 0) {
+              isExpired = true;
+              dateProgressText = '已过期';
+              dateProgress = 100; // 过期时进度条满格
+            } else if (daysUntilExpire <= 30 && daysUntilExpire > 0) {
+              isExpiring = true;
+              dateProgressText = '还有' + daysUntilExpire + '天到期';
+            } else {
+              dateProgressText = '还有' + daysUntilExpire + '天到期';
+            }
           } else {
-            expireText = '还有' + daysUntilExpire + '天到期';
+            dateProgressText = '日期信息异常';
           }
+        } else {
+          dateProgressText = '无日期信息';
         }
         
         // 检查是否即将用完（仅限有限次数卡片）
@@ -184,6 +222,12 @@ Page({
           isExpired: isExpired,
           isRunningOut: isRunningOut,
           expireText: expireText,
+          // 日期进度条相关数据
+          dateProgress: dateProgress,
+          dateProgressText: dateProgressText,
+          // 单价相关数据
+          unitPrice: unitPrice,
+          unitPriceText: unitPriceText,
           // 仅当未过期且（不限次数或剩余次数>0）才可使用
           canUse: !isExpired && (isUnlimited || remainingCount > 0),
           remainingCount: remainingCount,

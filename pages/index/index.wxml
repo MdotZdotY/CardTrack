@@ -5,7 +5,7 @@
     <view class="header-top">
       <view class="logo-section">
         <text class="logo-title">卡点时光</text>
-        <text class="logo-subtitle">让每一次消费都有记录</text>
+        <text class="logo-subtitle">榨干每一张卡的"剩余价值"</text>
       </view>
       <view class="search-icon" bindtap="showSearch">
         <text class="iconfont icon-search"></text>
@@ -51,12 +51,9 @@
         <view class="card-content">
           <view class="usage-info">
             <text class="usage-text">
-              <text wx:if="{{item.isUnlimited}}">已使用 {{item.usedCount}} 次（不限次数）</text>
-              <text wx:else>已使用 {{item.usedCount}} / {{item.totalCount}} 次</text>
+              <text wx:if="{{item.isUnlimited}}">{{item.unitPriceText}}</text>
+              <text wx:else>{{item.unitPriceText}}</text>
             </text>
-            <view class="progress-bar" wx:if="{{!item.isUnlimited}}">
-              <view class="progress-fill" style="width: {{item.progress}}%"></view>
-            </view>
           </view>
           
           <view class="card-actions" catchtap="stopPropagation">
@@ -64,10 +61,30 @@
               记录使用
             </button>
           </view>
+          
+          <!-- 使用次数进度条 - 仅对有限次数卡片显示，放在按钮下方 -->
+          <view class="usage-progress-container" wx:if="{{!item.isUnlimited}}">
+            <view class="usage-progress-bar">
+              <view class="usage-progress-fill" style="width: {{item.progress}}%"></view>
+            </view>
+            <view class="usage-progress-info">
+              <text class="usage-progress-text">还有{{item.totalCount - item.usedCount}}次用完</text>
+              <text class="usage-progress-percent">{{item.progress}}%</text>
+            </view>
+          </view>
         </view>
         
         <view class="card-footer" wx:if="{{item.expireDate}}">
-          <text class="expire-text {{item.isExpiring ? 'expiring' : ''}}">{{item.expireText}}</text>
+          <!-- 日期进度条 -->
+          <view class="date-progress-container">
+            <view class="date-progress-bar">
+              <view class="date-progress-fill" style="width: {{item.dateProgress}}%"></view>
+            </view>
+            <view class="date-progress-info">
+              <text class="date-progress-text">{{item.dateProgressText}}</text>
+              <text class="date-progress-percent">{{item.dateProgress.toFixed(0)}}%</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>

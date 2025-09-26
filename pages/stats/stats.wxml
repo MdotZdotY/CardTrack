@@ -3,7 +3,7 @@
   <!-- 页面标题（与首页一致的顶铺样式） -->
   <view class="page-header" style="{{headerStyle}}">
     <text class="page-title">使用统计</text>
-    <text class="page-subtitle">了解您的套餐卡使用情况</text>
+    <text class="page-subtitle">让每一分钱都"死得其所"</text>
   </view>
 
   <view class="page-content">

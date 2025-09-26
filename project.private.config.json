@@ -1,6 +1,6 @@
 {
   "libVersion": "3.9.3",
-  "projectname": "%E5%8D%A1%E7%82%B9",
+  "projectname": "卡点时光",
   "condition": {},
   "setting": {
     "urlCheck": true,
@@ -15,7 +15,7 @@
     "useStaticServer": false,
     "useLanDebug": false,
     "showES6CompileOption": false,
-    "compileHotReLoad": true,
+    "compileHotReLoad": false,
     "checkInvalidKey": true,
     "ignoreDevUnusedFiles": true,
     "bigPackageSizeSupport": false,

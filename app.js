@@ -11,10 +11,14 @@ App({
 
   onLaunch: function() {
     console.log('卡点时光小程序启动');
-    this.initDataManager();
-    this.initBackupManager();
-    this.initReminderManager();
-    this.initNotificationManager();
+    try {
+      this.initDataManager();
+      this.initBackupManager();
+      this.initReminderManager();
+      this.initNotificationManager();
+    } catch (error) {
+      console.error('小程序初始化失败:', error);
+    }
   },
 
   onShow: function() {
