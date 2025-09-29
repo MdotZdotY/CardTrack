@@ -6,7 +6,6 @@ Page({
       merchant: '',
       category: '餐饮',
       totalCount: '不限',
-      usedCount: '',
       totalAmount: '',
       purchaseDate: '',
       expireDate: '',
@@ -34,7 +33,6 @@ Page({
   },
 
   onLoad: function(options) {
-    console.log('添加卡片页面加载', options);
     
     // 初始化日期选择器数据
     this.initDatePickerData();
@@ -65,17 +63,28 @@ Page({
       months.push(i);
     }
     
-    // 生成日期数组
-    var days = [];
-    for (var i = 1; i <= 31; i++) {
-      days.push(i);
-    }
+    // 生成日期数组（根据当前年月动态生成）
+    var now = new Date();
+    var currentMonth = now.getMonth() + 1;
+    var currentYear = now.getFullYear();
+    var days = this.generateDaysForMonth(currentYear, currentMonth);
     
     this.setData({
       years: years,
       months: months,
       days: days
     });
+  },
+
+  // 根据年月生成对应的日期数组
+  generateDaysForMonth: function(year, month) {
+    // 获取该月的最后一天
+    var lastDay = new Date(year, month, 0).getDate();
+    var days = [];
+    for (var i = 1; i <= lastDay; i++) {
+      days.push(i);
+    }
+    return days;
   },
 
   // 设置默认购买日期为今天
@@ -118,15 +127,6 @@ Page({
   },
 
   // 已使用次数输入处理方法（仅编辑模式可见）
-  onUsedCountInput: function(e) {
-    var value = e.detail.value;
-    // 仅保留数字
-    var clean = String(value).replace(/[^\d]/g, '');
-    this.setData({
-      'formData.usedCount': clean
-    });
-    this.checkFormValidity();
-  },
 
   // 金额输入处理方法
   onAmountInput: function(e) {
@@ -196,7 +196,6 @@ Page({
 
   // 显示分类选择器
   showCategoryPicker: function() {
-    console.log('显示分类选择器，当前索引:', this.data.categoryIndex);
     this.setData({
       showCategoryPicker: true,
       tempCategoryIndex: this.data.categoryIndex
@@ -205,7 +204,6 @@ Page({
 
   // 隐藏分类选择器
   hideCategoryPicker: function() {
-    console.log('隐藏分类选择器');
     this.setData({
       showCategoryPicker: false,
       tempCategoryIndex: this.data.categoryIndex  // 重置为当前选择
@@ -215,7 +213,6 @@ Page({
   // 选择分类项
   selectCategory: function(e) {
     var index = parseInt(e.currentTarget.dataset.index);
-    console.log('选择分类项，索引:', index);
     this.setData({
       tempCategoryIndex: index
     });
@@ -224,7 +221,6 @@ Page({
   // 确认分类选择
   confirmCategorySelection: function() {
     var index = this.data.tempCategoryIndex;
-    console.log('确认分类选择，索引:', index, '分类:', this.data.categories[index]);
     this.setData({
       categoryIndex: index,
       'formData.category': this.data.categories[index],
@@ -242,7 +238,6 @@ Page({
   // 加载卡片进行编辑
   loadCardForEdit: function(cardId) {
     try {
-      console.log('加载卡片进行编辑:', cardId);
       
       // 从数据管理器获取卡片数据
       var app = getApp();
@@ -293,7 +288,6 @@ Page({
           merchant: cardToEdit.merchant || '',
           category: cardToEdit.category || '其它',
           totalCount: cardToEdit.totalCount ? String(cardToEdit.totalCount) : '不限',
-          usedCount: typeof cardToEdit.usedCount === 'number' ? String(cardToEdit.usedCount) : '0',
           totalAmount: cardToEdit.totalAmount ? cardToEdit.totalAmount.toString() : '',
           purchaseDate: cardToEdit.purchaseDate || '',
           expireDate: cardToEdit.expireDate || '',
@@ -344,33 +338,13 @@ Page({
       isExpireDateValid = formData.expireDate && formData.expireDate.trim() !== '';
     }
 
-    // 校验已使用次数（仅编辑模式时参与校验）
-    var isUsedCountValid = true;
-    if (this.data.isEditMode) {
-      var usedStr = String(formData.usedCount == null ? '' : formData.usedCount).trim();
-      if (usedStr === '' || isNaN(usedStr)) {
-        isUsedCountValid = false;
-      } else {
-        var usedNum = parseInt(usedStr, 10);
-        isUsedCountValid = usedNum >= 0;
-        // 若总次数是数字，限制 usedCount <= totalCount
-        var totalCountStr = String(formData.totalCount).trim();
-        if (!isNaN(totalCountStr)) {
-          var totalNum = parseInt(totalCountStr, 10);
-          if (isFinite(totalNum)) {
-            isUsedCountValid = isUsedCountValid && usedNum <= totalNum;
-          }
-        }
-      }
-    }
     
     var isValid = formData.name.trim() !== '' && 
                   formData.merchant.trim() !== '' && 
                   isTotalCountValid &&
                   formData.totalAmount.trim() !== '' &&
                   parseFloat(formData.totalAmount) > 0 &&
-                  isExpireDateValid &&
-                  isUsedCountValid;
+                  isExpireDateValid;
     
     this.setData({
       isFormValid: isValid
@@ -469,7 +443,7 @@ Page({
           merchant: formData.merchant.trim(),
           category: formData.category,
           totalCount: isNaN(formData.totalCount) ? formData.totalCount : parseInt(formData.totalCount),
-          usedCount: isNaN(formData.usedCount) ? this.data.originalCard.usedCount || 0 : parseInt(formData.usedCount),
+          usedCount: this.data.originalCard.usedCount || 0,
           totalAmount: parseFloat(formData.totalAmount),
           purchaseDate: formData.purchaseDate,
           expireDate: formData.expireDate,
@@ -506,10 +480,8 @@ Page({
           var success;
           if (this.data.isEditMode) {
             success = dataManager.updateCard(cardData);
-            console.log('卡片更新成功:', cardData);
           } else {
             success = dataManager.addCard(cardData);
-            console.log('卡片添加成功:', cardData);
           }
           
           if (success) {
@@ -539,11 +511,9 @@ Page({
             if (cardIndex !== -1) {
               cards[cardIndex] = cardData;
             }
-            console.log('卡片更新成功(降级方案):', cardData);
           } else {
             // 新增模式：添加新卡片
             cards.push(cardData);
-            console.log('卡片添加成功(降级方案):', cardData);
           }
           
           wx.setStorageSync('cards', cards);
@@ -628,7 +598,18 @@ Page({
       
       if (yearIndex !== -1) defaultValue[0] = yearIndex;
       if (monthIndex >= 0 && monthIndex < 12) defaultValue[1] = monthIndex;
-      if (dayIndex >= 0 && dayIndex < 31) defaultValue[2] = dayIndex;
+      
+      // 根据选择的年月动态调整日期范围
+      var selectedYear = this.data.years[defaultValue[0]];
+      var selectedMonth = this.data.months[defaultValue[1]];
+      var maxDays = this.generateDaysForMonth(selectedYear, selectedMonth).length;
+      
+      if (dayIndex >= 0 && dayIndex < maxDays) {
+        defaultValue[2] = dayIndex;
+      } else {
+        // 如果日期超出范围，设置为该月的最后一天
+        defaultValue[2] = maxDays - 1;
+      }
     }
     
     // 确保默认值在有效范围内
@@ -653,9 +634,34 @@ Page({
 
   // 日期选择器变化
   onDatePickerChange: function(e) {
-    this.setData({
-      datePickerValue: e.detail.value
-    });
+    var value = e.detail.value;
+    var year = this.data.years[value[0]];
+    var month = this.data.months[value[1]];
+    var day = this.data.days[value[2]];
+    
+    // 如果年月发生变化，重新生成日期数组
+    var currentYear = this.data.years[this.data.datePickerValue[0]];
+    var currentMonth = this.data.months[this.data.datePickerValue[1]];
+    
+    if (year !== currentYear || month !== currentMonth) {
+      var newDays = this.generateDaysForMonth(year, month);
+      
+      // 如果当前选择的日期超出了新月份的天数，调整为该月的最后一天
+      var maxDay = newDays.length;
+      if (day > maxDay) {
+        day = maxDay;
+        value[2] = maxDay - 1; // 数组索引从0开始
+      }
+      
+      this.setData({
+        datePickerValue: value,
+        days: newDays
+      });
+    } else {
+      this.setData({
+        datePickerValue: value
+      });
+    }
   },
 
   // 确认日期选择

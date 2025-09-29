@@ -27,7 +27,6 @@ Component({
       wx.reLaunch({
         url: url,
         success: function() {
-          console.log('切换到页面:', url);
         },
         fail: function(error) {
           console.error('页面跳转失败:', error);
@@ -39,11 +38,9 @@ Component({
 
     // 添加卡片
     addCard: function() {
-      console.log('点击添加卡片按钮');
       wx.navigateTo({
         url: '/pages/add-card/add-card',
         success: function() {
-          console.log('跳转到添加卡片页面');
         },
         fail: function(error) {
           console.error('跳转添加卡片页面失败:', error);

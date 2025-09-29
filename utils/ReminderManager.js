@@ -333,7 +333,6 @@ class ReminderManager {
       wx.setStorageSync('reminderSettings', settings);
       this.reminderSettings = settings;
       
-      console.log('已禁用提醒类型:', type);
     } catch (error) {
       console.error('禁用提醒类型失败:', error);
     }
@@ -359,7 +358,6 @@ class ReminderManager {
       wx.setStorageSync('reminderSettings', settings);
       this.reminderSettings = settings;
       
-      console.log('已启用提醒类型:', type);
     } catch (error) {
       console.error('启用提醒类型失败:', error);
     }
@@ -373,7 +371,6 @@ class ReminderManager {
       wx.removeStorageSync('runningOutReminderShown_' + today);
       wx.removeStorageSync('usageReminderShown_' + today);
       wx.removeStorageSync('anyReminderShown_' + today);
-      console.log('已清除今天的提醒显示记录');
     } catch (error) {
       console.error('清除提醒显示记录失败:', error);
     }

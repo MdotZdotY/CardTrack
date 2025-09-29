@@ -238,6 +238,18 @@
   color: #CCCCCC;
 }
 
+/* 用完卡片的分享按钮保持醒目颜色 */
+.card-item.used-up .card-actions .btn-share {
+  background: #156D57 !important;
+  color: #FCC96E !important;
+  border: 1rpx solid #156D57 !important;
+}
+
+.card-item.used-up .card-actions .btn-share:active {
+  background: #0F4A3A !important;
+  transform: scale(0.95);
+}
+
 .card-item:active {
   transform: scale(0.98);
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
@@ -318,9 +330,21 @@
 
 .card-actions {
   display: flex;
-  gap: 16rpx;
-  justify-content: flex-end; /* 右对齐按钮 */
+  justify-content: flex-end; /* 所有按钮右对齐 */
+  align-items: center;
   width: 100%; /* 占满行，保证与上方分类标签右侧对齐 */
+}
+
+.button-group-left {
+  display: flex;
+  gap: 12rpx; /* 详情按钮和记录使用按钮之间的间距 */
+  align-items: center;
+  margin-right: 16rpx; /* 与右侧按钮组的间距 */
+}
+
+.button-group-right {
+  display: flex;
+  align-items: center;
 }
 .card-actions button {
   margin-right: 0;
@@ -356,6 +380,36 @@
   padding: 12rpx 16rpx; /* 上下12，左右16：缩小左右宽度 */
   font-size: 24rpx;
   border-radius: 16rpx;
+}
+
+/* 详情按钮样式 */
+.btn-detail {
+  background: #F0F0F0;
+  color: #666666;
+  border: 1rpx solid #E0E0E0;
+  padding: 12rpx 16rpx;
+  font-size: 24rpx;
+  border-radius: 16rpx;
+}
+
+.btn-detail:active {
+  background: #E0E0E0;
+  transform: scale(0.95);
+}
+
+/* 分享按钮样式 */
+.btn-share {
+  background: #156D57;
+  color: #FCC96E;
+  border: 1rpx solid #156D57;
+  padding: 12rpx 16rpx;
+  font-size: 24rpx;
+  border-radius: 16rpx;
+}
+
+.btn-share:active {
+  background: #0F4A3A;
+  transform: scale(0.95);
 }
 
 /* 使用次数进度条样式 */
@@ -774,5 +828,190 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 卡片详情月历弹窗样式 */
+.detail-modal {
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.month-nav-btn {
+  font-size: 48rpx;
+  color: #FCC96E;
+  font-weight: bold;
+  padding: 10rpx 20rpx;
+  border-radius: 50%;
+  background: rgba(252, 201, 110, 0.1);
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-nav-btn:active {
+  background: rgba(252, 201, 110, 0.2);
+  transform: scale(0.95);
+}
+
+.current-month {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #020100;
+}
+
+.calendar-container {
+  margin-bottom: 30rpx;
+}
+
+.calendar-weekdays {
+  display: flex;
+  margin-bottom: 10rpx;
+}
+
+.weekday {
+  flex: 1;
+  text-align: center;
+  font-size: 24rpx;
+  color: #666666;
+  font-weight: 600;
+  padding: 10rpx 0;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4rpx;
+}
+
+.calendar-day {
+  height: 80rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+}
+
+.calendar-day.other-month {
+  opacity: 0.3;
+}
+
+.calendar-day.today {
+  background: rgba(252, 201, 110, 0.2);
+  border: 2rpx solid #FCC96E;
+}
+
+.calendar-day.used-day {
+  background: #156D57;
+  color: #FFFFFF;
+}
+
+.calendar-day.used-day .day-number {
+  color: #FFFFFF;
+}
+
+.day-number {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #020100;
+}
+
+.usage-count {
+  font-size: 18rpx;
+  color: #FCC96E;
+  font-weight: bold;
+  margin-top: 2rpx;
+}
+
+.calendar-day.used-day .usage-count {
+  color: #FCC96E;
+}
+
+.usage-stats {
+  background: rgba(252, 201, 110, 0.1);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-top: 20rpx;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.stat-row:last-child {
+  margin-bottom: 0;
+}
+
+.stat-label {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.stat-value {
+  font-size: 28rpx;
+  color: #156D57;
+  font-weight: bold;
+}
+
+/* 编辑模式样式 */
+.calendar-day.editing {
+  border: 2rpx solid #FCC96E;
+  background: rgba(252, 201, 110, 0.1);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 24rpx;
+  padding: 24rpx 0;
+  margin-top: 20rpx;
+  border-top: 2rpx solid #F0F0F0;
+}
+
+.btn-cancel {
+  flex: 1;
+  background: #F5F5F5;
+  color: #666666;
+  border: 2rpx solid #E0E0E0;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.btn-cancel:active {
+  background: #E0E0E0;
+  transform: scale(0.95);
+}
+
+.btn-save {
+  flex: 1;
+  background: #156D57;
+  color: #FFFFFF;
+  border: 2rpx solid #156D57;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.btn-save:active {
+  background: #0F4A3A;
+  transform: scale(0.95);
 }
 

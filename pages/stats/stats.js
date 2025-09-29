@@ -14,7 +14,6 @@ Page({
   },
 
   onLoad: function() {
-    console.log('统计页面加载');
     try {
       const info = wx.getSystemInfoSync();
       const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
@@ -35,7 +34,6 @@ Page({
   },
 
   onShow: function() {
-    console.log('统计页面显示');
     // 再次进入时重算安全区与头部样式，防止刷新后样式回退
     try {
       const info = wx.getSystemInfoSync();
@@ -58,7 +56,6 @@ Page({
   // 加载统计数据
   loadStatsData: function() {
     try {
-      console.log('开始加载统计数据');
       
       // 从数据管理器获取卡片数据
       var app = getApp();
@@ -68,11 +65,9 @@ Page({
       if (dataManager) {
         // 使用数据管理器获取数据
         cards = dataManager.getCards();
-        console.log('从数据管理器获取到卡片数据:', cards);
       } else {
         // 降级到直接存储
         cards = wx.getStorageSync('cards') || [];
-        console.log('从本地存储获取到卡片数据(降级方案):', cards);
       }
       
       if (cards.length === 0) {

@@ -12,7 +12,6 @@ class DataManager {
   // 初始化数据
   initData() {
     try {
-      console.log('数据管理器初始化开始');
       
       // 检查版本兼容性
       this.checkVersionCompatibility();
@@ -22,13 +21,11 @@ class DataManager {
       
       // 如果主存储没有数据，尝试从备份恢复
       if (!cards || cards.length === 0) {
-        console.log('主存储无数据，尝试从备份恢复');
         cards = this.restoreFromBackup();
       }
       
       // 如果有数据，创建备份
       if (cards && cards.length > 0) {
-        console.log('数据恢复成功，创建备份');
         this.createBackup(cards);
       }
       
@@ -46,7 +43,6 @@ class DataManager {
     try {
       var storedVersion = wx.getStorageSync(this.versionKey);
       if (storedVersion && storedVersion !== this.currentVersion) {
-        console.log('检测到版本更新:', storedVersion, '->', this.currentVersion);
       }
       // 更新版本号
       wx.setStorageSync(this.versionKey, this.currentVersion);
@@ -59,7 +55,6 @@ class DataManager {
   getCardsFromStorage(key) {
     try {
       var data = wx.getStorageSync(key);
-      console.log('从存储获取数据:', key, '数据:', data ? data.length : 0, '条');
       return data;
     } catch (error) {
       console.error('从存储获取数据失败:', key, error);
@@ -84,7 +79,6 @@ class DataManager {
         var backupData = this.getCardsFromStorage(backupKey);
         
         if (backupData && backupData.length > 0) {
-          console.log('从备份恢复成功:', backupKey, backupData.length, '张卡片');
           
           // 恢复数据到主存储
           this.saveCardsToStorage(this.storageKey, backupData);
@@ -120,7 +114,6 @@ class DataManager {
         var data = this.getCardsFromStorage(key);
         
         if (data && data.length > 0) {
-          console.log('从其他位置恢复成功:', key, data.length, '张卡片');
           
           // 迁移数据到新位置
           this.saveCardsToStorage(this.storageKey, data);
@@ -142,7 +135,6 @@ class DataManager {
     try {
       // 主备份
       this.saveCardsToStorage(this.backupKey, cards);
-      console.log('备份创建完成');
     } catch (error) {
       console.error('创建备份失败:', error);
     }
@@ -190,9 +182,7 @@ class DataManager {
         for (var i = 0; i < toDelete.length; i++) {
           try {
             wx.removeStorageSync(toDelete[i]);
-            console.log('清理旧备份:', toDelete[i]);
           } catch (e) {
-            console.log('清理备份失败:', toDelete[i]);
           }
         }
       }
@@ -204,9 +194,7 @@ class DataManager {
   // 保存数据到存储
   saveCardsToStorage(key, cards) {
     try {
-      console.log('尝试保存到存储:', key, '数据长度:', cards ? cards.length : 0);
       wx.setStorageSync(key, cards);
-      console.log('保存成功:', key);
       return true;
     } catch (error) {
       console.error('保存到存储失败:', key, error);
@@ -232,7 +220,6 @@ class DataManager {
         throw new Error('数据保存验证失败');
       }
       
-      console.log('数据保存成功，共', cards.length, '张卡片');
       return true;
     } catch (error) {
       console.error('保存数据失败:', error);
@@ -249,7 +236,6 @@ class DataManager {
     try {
       var emergencyKey = 'cards_emergency_' + Date.now();
       this.saveCardsToStorage(emergencyKey, cards);
-      console.log('紧急备份创建成功:', emergencyKey);
     } catch (error) {
       console.error('紧急备份失败:', error);
     }
@@ -262,7 +248,6 @@ class DataManager {
       
       // 如果主存储没有数据，尝试恢复
       if (cards.length === 0) {
-        console.log('主存储无数据，尝试恢复');
         cards = this.restoreFromBackup();
         
         if (!cards || cards.length === 0) {
@@ -360,10 +345,31 @@ class DataManager {
       cards[cardIndex].lastUsedDate = useDate;
       cards[cardIndex].updatedAt = new Date().toISOString();
       
+      // 添加详细的使用记录
+      if (!cards[cardIndex].usageRecords) {
+        cards[cardIndex].usageRecords = [];
+      }
+      
+      // 检查是否已有该日期的记录
+      var existingRecordIndex = cards[cardIndex].usageRecords.findIndex(function(record) {
+        return record.date === useDate;
+      });
+      
+      if (existingRecordIndex !== -1) {
+        // 如果该日期已有记录，累加使用次数
+        cards[cardIndex].usageRecords[existingRecordIndex].count += useCount;
+      } else {
+        // 如果该日期没有记录，创建新记录
+        cards[cardIndex].usageRecords.push({
+          date: useDate,
+          count: useCount,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       // 保存更新后的数据
       var success = this.saveCards(cards);
       if (success) {
-        console.log('记录使用成功:', cardId, '使用次数:', useCount, '使用日期:', useDate);
       }
       
       return success;
@@ -387,11 +393,9 @@ class DataManager {
         try {
           wx.removeStorageSync(cardKeys[i]);
         } catch (e) {
-          console.log('删除存储键失败:', cardKeys[i]);
         }
       }
       
-      console.log('所有数据已清空');
       return true;
     } catch (error) {
       console.error('清空数据失败:', error);
@@ -484,15 +488,6 @@ class DataManager {
       var stats = this.getStatistics();
       var integrity = this.checkDataIntegrity();
       
-      console.log('=== 数据状态报告 ===');
-      console.log('总卡片数:', stats.totalCards);
-      console.log('即将到期:', stats.expiringCards);
-      console.log('剩余次数:', stats.totalRemainingCount);
-      console.log('数据完整性:', integrity.isValid ? '正常' : '异常');
-      
-      if (!integrity.isValid) {
-        console.log('发现的问题:', integrity.issues);
-      }
       
       // 记录到存储中
       wx.setStorageSync('cards_status_report', {
@@ -509,7 +504,6 @@ class DataManager {
   // 处理初始化错误
   handleInitializationError() {
     try {
-      console.log('尝试从紧急备份恢复');
       
       // 查找紧急备份
       var allKeys = wx.getStorageInfoSync().keys;
@@ -524,7 +518,6 @@ class DataManager {
         var emergencyData = this.getCardsFromStorage(latestEmergencyKey);
         
         if (emergencyData && emergencyData.length > 0) {
-          console.log('从紧急备份恢复成功');
           this.saveCards(emergencyData);
         }
       }
@@ -579,7 +572,6 @@ class DataManager {
           var mergedCards = existingCards.concat(uniqueNewCards);
           
           if (this.saveCards(mergedCards)) {
-            console.log('数据导入成功，新增', uniqueNewCards.length, '张卡片');
             return true;
           }
         }
@@ -604,18 +596,15 @@ class DataManager {
         'main_data_cards'
       ];
       
-      console.log('开始创建开发模式备份，卡片数量:', cards.length);
       
       for (var i = 0; i < devBackupKeys.length; i++) {
         var backupKey = devBackupKeys[i];
         var success = this.saveCardsToStorage(backupKey, cards);
-        console.log('备份到', backupKey, '结果:', success);
       }
       
       // 尝试使用云存储作为备选方案
       this.createCloudBackup(cards);
       
-      console.log('开发模式备份创建完成');
     } catch (error) {
       console.error('创建开发模式备份失败:', error);
     }
@@ -637,8 +626,6 @@ class DataManager {
       
       // 同时保存一个固定的云备份键
       wx.setStorageSync('cloud_backup_latest', dataStr);
-      
-      console.log('云存储备份创建成功:', cloudKey);
     } catch (error) {
       console.error('创建云存储备份失败:', error);
     }
@@ -655,24 +642,18 @@ class DataManager {
         'main_data_cards'
       ];
       
-      console.log('开始从开发模式备份恢复，检查存储键:', devBackupKeys);
       
       // 先检查所有存储键
       try {
         var allKeys = wx.getStorageInfoSync().keys;
-        console.log('当前所有存储键:', allKeys);
       } catch (e) {
-        console.log('获取存储键失败:', e);
       }
       
       for (var i = 0; i < devBackupKeys.length; i++) {
         var backupKey = devBackupKeys[i];
-        console.log('检查备份键:', backupKey);
         var backupData = this.getCardsFromStorage(backupKey);
-        console.log('备份数据:', backupKey, backupData);
         
         if (backupData && backupData.length > 0) {
-          console.log('从开发模式备份恢复成功:', backupKey, backupData.length, '张卡片');
           
           // 恢复数据到主存储
           this.saveCardsToStorage(this.storageKey, backupData);
@@ -684,7 +665,6 @@ class DataManager {
         }
       }
       
-      console.log('所有开发模式备份都为空');
       
       // 尝试从云存储恢复
       return this.restoreFromCloudBackup();
@@ -697,14 +677,12 @@ class DataManager {
   // 从云存储恢复
   restoreFromCloudBackup() {
     try {
-      console.log('尝试从云存储恢复数据');
       
       // 尝试从固定的云备份键恢复
       var cloudData = wx.getStorageSync('cloud_backup_latest');
       if (cloudData) {
         var parsedData = JSON.parse(cloudData);
         if (parsedData && parsedData.cards && parsedData.cards.length > 0) {
-          console.log('从云存储恢复成功:', parsedData.cards.length, '张卡片');
           
           // 恢复数据到主存储
           this.saveCardsToStorage(this.storageKey, parsedData.cards);
@@ -736,7 +714,6 @@ class DataManager {
           if (backupData) {
             var parsedData = JSON.parse(backupData);
             if (parsedData && parsedData.cards && parsedData.cards.length > 0) {
-              console.log('从时间戳云存储恢复成功:', backupKey, parsedData.cards.length, '张卡片');
               
               // 恢复数据到主存储
               this.saveCardsToStorage(this.storageKey, parsedData.cards);
@@ -749,10 +726,8 @@ class DataManager {
           }
         }
       } catch (e) {
-        console.log('从时间戳云存储恢复失败:', e);
       }
       
-      console.log('云存储恢复失败');
       return null;
     } catch (error) {
       console.error('从云存储恢复失败:', error);

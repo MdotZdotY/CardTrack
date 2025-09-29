@@ -31,6 +31,7 @@
 - 作为一个忙碌的上班族，我希望能随时查看我的美容院护肤卡还剩几次，这样我可以合理安排使用
 - 作为一个宝妈，我希望在孩子的游泳课套餐快到期时收到提醒，避免浪费钱
 - 作为一个健身爱好者，我希望能统一管理我的各种健身卡和课程包
+- 作为一个细心的用户，我希望能够精确控制每个日期的使用记录，比如某天用了3次，某天用了1次，这样我可以更准确地管理我的套餐卡使用情况
 
 ## 3. 产品功能规划
 
@@ -48,6 +49,10 @@
 - 一键记录使用（+1次）
 - 撤销上次记录（容错机制）
 - 使用历史记录查看
+- 月历视图智能切换使用状态
+  - 点击高亮日期：逐步减少使用次数（3→2→1→0）
+  - 点击未使用日期：增加使用次数（0→1→2→3）
+  - 支持精确控制每个日期的使用状态
 
 **提醒系统**
 - 到期前30天/15天/7天/1天提醒
@@ -213,6 +218,7 @@ UsageRecord {
 2. **记录使用流程**：
    - 卡片上点击"记录使用" → 按钮变绿显示"已记录" → 1秒后恢复 → 数据更新
    - 支持撤销：长按按钮可撤销最近一次记录
+   - 月历视图智能切换：点击日期实现使用状态的精确控制
 
 3. **查看详情流程**：
    - 点击卡片或"详情"按钮 → 详情页面 → 显示完整信息和使用历史
@@ -411,7 +417,81 @@ initStorage() {
 
 ### 6.3 关键技术实现
 
-#### 6.3.1 数据存储方案
+#### 6.3.1 月历视图智能切换逻辑
+
+**功能描述：**
+月历视图支持用户通过点击日期来精确控制每个日期的使用状态，实现智能的使用记录管理。
+
+**核心逻辑：**
+
+1. **多次使用记录处理**：
+   - 初始状态：3次使用 → 点击 → 2次使用 → 点击 → 1次使用 → 点击 → 0次使用
+   - 反向操作：0次使用 → 点击 → 1次使用 → 点击 → 2次使用 → 点击 → 3次使用
+
+2. **单次使用记录处理**：
+   - 1次使用 → 点击 → 0次使用（取消高亮）
+   - 0次使用 → 点击 → 1次使用（高亮显示）
+
+**技术实现要点：**
+
+```javascript
+// 切换日期使用状态的核心逻辑
+toggleDayUsage: function(e) {
+  var date = e.currentTarget.dataset.date;
+  var isUsed = e.currentTarget.dataset.isUsed === 'true';
+  var currentCount = parseInt(e.currentTarget.dataset.usageCount) || 0;
+  
+  // 强制进入编辑模式
+  if (!this.data.isEditingMode) {
+    this.enterEditMode();
+  }
+  
+  // 处理日期切换逻辑
+  this.processDayToggle(date, isUsed, currentCount);
+}
+
+// 处理日期切换逻辑
+processDayToggle: function(date, isUsed, currentCount) {
+  var editedRecords = [...this.data.editedUsageRecords];
+  var recordIndex = editedRecords.findIndex(record => record.date === date);
+  
+  if (isUsed) {
+    // 已使用状态：根据使用次数决定行为
+    if (recordIndex !== -1) {
+      var record = editedRecords[recordIndex];
+      var currentUsageCount = record.count || 1;
+      
+      if (currentUsageCount > 1) {
+        // 使用次数大于1，减少1次
+        record.count = currentUsageCount - 1;
+      } else {
+        // 使用次数为1，完全移除记录
+        editedRecords.splice(recordIndex, 1);
+      }
+    }
+  } else {
+    // 未使用状态：添加使用记录
+    if (recordIndex === -1) {
+      editedRecords.push({
+        date: date,
+        count: 1,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  
+  this.setData({ editedUsageRecords: editedRecords });
+  this.generateCalendar(); // 重新生成月历
+}
+```
+
+**用户体验优势：**
+- **渐进式操作**：可以精确控制使用次数，而不是全有全无
+- **直观反馈**：每次点击都有明确的视觉变化
+- **灵活控制**：既可以快速清零，也可以精确调整
+- **数据一致性**：确保月历显示与实际数据完全同步
+
+#### 6.3.2 数据存储方案
 **V1.0本地存储：**
 - 使用微信小程序 `wx.setStorageSync/wx.getStorageSync`
 - 数据格式：JSON字符串存储
@@ -511,6 +591,7 @@ const AppConfig = {
 - **用户数量**：注册用户数、活跃用户数
 - **使用频率**：人均套餐卡数量、记录使用频次
 - **功能效果**：提醒点击率、过期浪费减少率
+- **智能切换功能**：月历视图使用率、精确记录使用率、用户满意度
 
 ### 8.2 用户体验指标
 - 应用崩溃率 < 0.1%
@@ -570,6 +651,7 @@ const AppConfig = {
 - 分类管理
 - 使用历史记录
 - 进度可视化
+- 月历视图智能切换使用状态
 
 **P2 - 优化功能（可以有）**
 - 图片上传

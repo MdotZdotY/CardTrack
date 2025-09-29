@@ -3,10 +3,9 @@
   <!-- 页面标题（与首页一致的顶铺样式） -->
   <view class="page-header" style="{{headerStyle}}">
     <text class="page-title">使用统计</text>
-    <text class="page-subtitle">让每一分钱都"死得其所"</text>
+        <text class="page-subtitle">让买卡的每一分钱都"死得其所"</text>
   </view>
 
-  <view class="page-content">
   <!-- 统计概览 -->
   <view class="stats-overview">
     <view class="stat-card">
@@ -23,24 +22,26 @@
     </view>
   </view>
 
-  <!-- 分类统计 -->
-  <view class="category-stats">
-    <text class="section-title">分类统计</text>
-    <view class="category-list">
-      <view class="category-item" wx:for="{{categoryStats}}" wx:key="category">
-        <view class="category-info">
-          <text class="category-name">{{item.category}}</text>
-          <text class="category-count">{{item.count}}张</text>
-        </view>
-        <view class="category-progress">
-          <view class="progress-bar">
-            <view class="progress-fill" style="width: {{item.percentage}}%"></view>
+  <!-- 分类统计区域 - 可滚动 -->
+  <view class="category-section">
+    <!-- 分类统计 -->
+    <view class="category-stats">
+      <text class="section-title">分类统计</text>
+      <view class="category-list">
+        <view class="category-item" wx:for="{{categoryStats}}" wx:key="category">
+          <view class="category-info">
+            <text class="category-name">{{item.category}}</text>
+            <text class="category-count">{{item.count}}张</text>
           </view>
-          <text class="progress-text">{{item.percentage}}%</text>
+          <view class="category-progress">
+            <view class="progress-bar">
+              <view class="progress-fill" style="width: {{item.percentage}}%"></view>
+            </view>
+            <text class="progress-text">{{item.percentage}}%</text>
+          </view>
         </view>
       </view>
     </view>
-  </view>
   </view>
   
 

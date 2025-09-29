@@ -1,25 +1,26 @@
 /* pages/stats/stats.wxss */
 .container {
   padding: 0;
-  background-color: #FFF2DF;
-  min-height: 100vh;
-  padding-bottom: 120rpx;
-}
-
-.page-content {
-  padding: 0 40rpx;
-  padding-top: 60rpx;
+  height: 100vh;
+  background: #FFF2DF;
+  display: flex;
+  flex-direction: column;
 }
 
 .safe-top { height: calc(env(safe-area-inset-top) + 44px); }
 
-/* 页面标题 */
+/* 页面标题 - 固定定位 */
 .page-header {
   background: linear-gradient(135deg, #FCC96E 0%, #FDD89A 100%);
   color: #156D57;
   text-align: center;
   padding: 88rpx 40rpx 40rpx;
   padding-top: calc(env(safe-area-inset-top) + 44px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
 .page-header .safe-top { display: none; }
@@ -39,11 +40,27 @@
   opacity: 0.8;
 }
 
-/* 统计概览 */
+/* 统计概览 - 固定定位 */
 .stats-overview {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 40rpx;
+  margin: 0 40rpx 40rpx;
+  padding-top: calc(env(safe-area-inset-top) + 44px + 88rpx + 40rpx + 60rpx + 80rpx);
+  flex-shrink: 0;
+}
+
+/* 分类统计区域 - 可滚动 */
+.category-section {
+  flex: 1;
+  padding: 0 40rpx;
+  background: #FFF2DF;
+  overflow-y: auto;
+  /* 为固定头部和统计概览留出空间 */
+  padding-top: 20rpx;
+  /* 为底部导航栏留出空间 */
+  padding-bottom: 140rpx;
+  /* 滚动优化 */
+  -webkit-overflow-scrolling: touch;
 }
 
 .stat-card {

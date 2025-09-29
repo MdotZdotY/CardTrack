@@ -5,7 +5,7 @@
     <view class="header-top">
       <view class="logo-section">
         <text class="logo-title">卡点时光</text>
-        <text class="logo-subtitle">榨干每一张卡的"剩余价值"</text>
+        <text class="logo-subtitle">榨干每一张消费卡的"剩余价值"</text>
       </view>
       <view class="search-icon" bindtap="showSearch">
         <text class="iconfont icon-search"></text>
@@ -36,7 +36,7 @@
   <view class="cards-section">
     <!-- 卡片列表 -->
     <view class="cards-list" wx:if="{{filteredCards.length > 0}}">
-      <view class="card-item {{item.isUsedUp ? 'used-up' : ''}}" wx:for="{{filteredCards}}" wx:key="id" bindtap="editCard" data-id="{{item.id}}">
+      <view class="card-item {{item.isUsedUp || item.isExpired ? 'used-up' : ''}}" wx:for="{{filteredCards}}" wx:key="id" bindtap="editCard" data-id="{{item.id}}">
         <view class="card-header">
           <view class="card-title">
             <text class="card-name">{{item.name}}</text>
@@ -57,9 +57,19 @@
           </view>
           
           <view class="card-actions" catchtap="stopPropagation">
-            <button class="btn btn-primary" size="mini" bindtap="recordUsage" data-id="{{item.id}}" wx:if="{{item.canUse}}">
-              记录使用
-            </button>
+            <view class="button-group-left">
+              <button class="btn btn-detail" size="mini" bindtap="showCardDetail" data-id="{{item.id}}">
+                详情
+              </button>
+              <button class="btn btn-primary" size="mini" bindtap="recordUsage" data-id="{{item.id}}" wx:if="{{item.canUse}}">
+                记录使用
+              </button>
+            </view>
+            <view class="button-group-right">
+              <button class="btn btn-share" size="mini" bindtap="shareCard" data-id="{{item.id}}" wx:if="{{!item.canUse}}">
+                分享
+              </button>
+            </view>
           </view>
           
           <!-- 使用次数进度条 - 仅对有限次数卡片显示，放在按钮下方 -->
@@ -69,7 +79,7 @@
             </view>
             <view class="usage-progress-info">
               <text class="usage-progress-text">还有{{item.totalCount - item.usedCount}}次用完</text>
-              <text class="usage-progress-percent">{{item.progress}}%</text>
+              <text class="usage-progress-percent">{{item.progressFixed}}%</text>
             </view>
           </view>
         </view>
@@ -82,7 +92,7 @@
             </view>
             <view class="date-progress-info">
               <text class="date-progress-text">{{item.dateProgressText}}</text>
-              <text class="date-progress-percent">{{item.dateProgress.toFixed(0)}}%</text>
+              <text class="date-progress-percent">{{item.dateProgressFixed}}%</text>
             </view>
           </view>
         </view>
@@ -177,7 +187,69 @@
     </view>
   </view>
   
+  <!-- 卡片详情月历弹窗 -->
+  <view class="modal-overlay" wx:if="{{showDetailModal}}" bindtap="closeDetailModal">
+    <view class="modal-content detail-modal" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{selectedCardDetail.name}} - 使用记录</text>
+        <text class="modal-close" bindtap="closeDetailModal">×</text>
+      </view>
+      
+      <view class="modal-body">
+        <!-- 月份切换 -->
+        <view class="calendar-header">
+          <text class="month-nav-btn" bindtap="prevMonth">‹</text>
+          <text class="current-month">{{currentYear}}年{{currentMonth}}月</text>
+          <text class="month-nav-btn" bindtap="nextMonth">›</text>
+        </view>
+        
+        <!-- 月历 -->
+        <view class="calendar-container">
+          <!-- 星期标题 -->
+          <view class="calendar-weekdays">
+            <text class="weekday" wx:for="{{weekdays}}" wx:key="index">{{item}}</text>
+          </view>
+          
+          <!-- 日期网格 -->
+          <view class="calendar-grid">
+            <view class="calendar-day {{item.isOtherMonth ? 'other-month' : ''}} {{item.isUsed ? 'used-day' : ''}} {{item.isToday ? 'today' : ''}} {{item.isEditing ? 'editing' : ''}}" 
+                  wx:for="{{calendarDays}}" 
+                  wx:key="date"
+                  bindtap="toggleDayUsage"
+                  bindlongpress="increaseDayUsage"
+                  data-date="{{item.date}}"
+                  data-is-used="{{item.isUsed ? 'true' : 'false'}}"
+                  data-usage-count="{{item.usageCount}}">
+              <text class="day-number">{{item.day}}</text>
+              <text class="usage-count" wx:if="{{item.usageCount > 0}}">{{item.usageCount}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 使用统计 -->
+        <view class="usage-stats" wx:if="{{selectedCardDetail}}">
+          <view class="stat-row">
+            <text class="stat-label">本月使用次数：</text>
+            <text class="stat-value">{{monthlyUsageCount}}次</text>
+          </view>
+          <view class="stat-row">
+            <text class="stat-label">总使用次数：</text>
+            <text class="stat-value">{{selectedCardDetail.usedCount}}次</text>
+          </view>
+        </view>
+        
+        <!-- 编辑模式按钮 -->
+        <view class="edit-actions" wx:if="{{isEditingMode}}">
+          <button class="btn btn-cancel" bindtap="cancelEdit">取消</button>
+          <button class="btn btn-save" bindtap="saveEdit">保存</button>
+        </view>
+      </view>
+    </view>
+  </view>
   
   <!-- 自定义底部导航栏 -->
   <custom-tabbar current-tab="{{0}}"></custom-tabbar>
+  
+  <!-- 隐藏的canvas用于生成分享图片 -->
+  <canvas canvas-id="shareCanvas" style="position: fixed; top: -9999px; left: -9999px; width: 750px; height: 1334px;"></canvas>
 </view>

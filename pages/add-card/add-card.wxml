@@ -51,17 +51,6 @@
                data-field="totalCount" />
       </view>
 
-      <!-- 已使用次数（仅编辑模式显示） -->
-      <view class="form-item" wx:if="{{isEditMode}}">
-        <text class="form-label">已使用次数 *</text>
-        <input class="form-input form-input-right" 
-               name="usedCount" 
-               type="number"
-               value="{{formData.usedCount}}"
-               placeholder="请输入已使用次数"
-               bindinput="onUsedCountInput"
-               data-field="usedCount" />
-      </view>
       
       <!-- 总金额 -->
       <view class="form-item">

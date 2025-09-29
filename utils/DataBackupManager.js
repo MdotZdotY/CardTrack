@@ -17,7 +17,6 @@ class DataBackupManager {
       // 清理过期备份
       this.cleanupExpiredBackups();
       
-      console.log('数据备份管理器初始化完成');
     } catch (error) {
       console.error('数据备份管理器初始化失败:', error);
     }
@@ -30,7 +29,6 @@ class DataBackupManager {
       var lastBackup = wx.getStorageSync('last_auto_backup') || 0;
       
       if (now - lastBackup > this.autoBackupInterval) {
-        console.log('执行自动备份');
         this.createAutoBackup();
         wx.setStorageSync('last_auto_backup', now);
       }
@@ -52,7 +50,6 @@ class DataBackupManager {
           count: cards.length
         });
         
-        console.log('自动备份创建成功:', backupKey);
       }
     } catch (error) {
       console.error('创建自动备份失败:', error);
@@ -79,7 +76,6 @@ class DataBackupManager {
         // 更新备份列表
         this.updateBackupList(backupKey, backupData);
         
-        console.log('手动备份创建成功:', backupKey);
         return backupKey;
       }
       
@@ -143,7 +139,6 @@ class DataBackupManager {
           // 创建恢复记录
           this.logRestore(backupKey, backupData);
           
-          console.log('从备份恢复成功:', backupKey, backupData.count, '张卡片');
           return true;
         } else {
           console.error('备份数据验证失败:', backupKey);
@@ -218,7 +213,6 @@ class DataBackupManager {
       
       wx.setStorageSync('backup_list', updatedList);
       
-      console.log('备份删除成功:', backupKey);
       return true;
     } catch (error) {
       console.error('删除备份失败:', error);
@@ -238,7 +232,6 @@ class DataBackupManager {
         var backupTime = new Date(backup.timestamp).getTime();
         
         if (now - backupTime > maxAge) {
-          console.log('清理过期备份:', backup.key);
           this.deleteBackup(backup.key);
         }
       }
@@ -275,7 +268,6 @@ class DataBackupManager {
         // 更新备份列表
         this.updateBackupList(backupKey, backupData);
         
-        console.log('备份导入成功:', backupKey);
         return backupKey;
       }
       
@@ -326,7 +318,6 @@ class DataBackupManager {
   // 优化存储空间
   optimizeStorage() {
     try {
-      console.log('开始优化存储空间');
       
       // 清理重复备份
       this.removeDuplicateBackups();
@@ -337,7 +328,6 @@ class DataBackupManager {
       // 清理临时文件
       this.cleanupTempFiles();
       
-      console.log('存储空间优化完成');
     } catch (error) {
       console.error('优化存储空间失败:', error);
     }
@@ -367,7 +357,6 @@ class DataBackupManager {
       }
       
       if (duplicates.length > 0) {
-        console.log('删除了', duplicates.length, '个重复备份');
       }
     } catch (error) {
       console.error('移除重复备份失败:', error);
@@ -425,7 +414,6 @@ class DataBackupManager {
         // 删除原备份
         this.deleteBackup(backupKey);
         
-        console.log('备份压缩完成:', backupKey, '->', compressedKey);
       }
     } catch (error) {
       console.error('压缩备份失败:', error);
@@ -449,7 +437,6 @@ class DataBackupManager {
       }
       
       if (tempKeys.length > 0) {
-        console.log('清理了', tempKeys.length, '个临时文件');
       }
     } catch (error) {
       console.error('清理临时文件失败:', error);

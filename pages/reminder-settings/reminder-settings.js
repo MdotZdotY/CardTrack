@@ -21,12 +21,10 @@ Page({
   },
 
   onLoad: function(options) {
-    console.log('提醒设置页面加载');
     this.loadReminderSettings();
   },
 
   onShow: function() {
-    console.log('提醒设置页面显示');
   },
 
   // 加载提醒设置

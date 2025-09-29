@@ -10,7 +10,6 @@ App({
   },
 
   onLaunch: function() {
-    console.log('卡点时光小程序启动');
     try {
       this.initDataManager();
       this.initBackupManager();
@@ -22,7 +21,6 @@ App({
   },
 
   onShow: function() {
-    console.log('小程序显示');
     // 只在应用启动时检查提醒，避免重复弹窗
     if (!this.hasCheckedReminders) {
       this.checkReminders();
@@ -32,7 +30,6 @@ App({
   },
 
   onHide: function() {
-    console.log('小程序隐藏，创建自动备份');
     this.createAutoBackup();
   },
 
@@ -40,7 +37,6 @@ App({
   initDataManager: function() {
     try {
       this.dataManager = new DataManager();
-      console.log('数据管理器初始化完成');
     } catch (error) {
       console.error('数据管理器初始化失败:', error);
     }
@@ -50,7 +46,6 @@ App({
   initBackupManager: function() {
     try {
       this.backupManager = new DataBackupManager();
-      console.log('备份管理器初始化完成');
     } catch (error) {
       console.error('备份管理器初始化失败:', error);
     }
@@ -60,7 +55,6 @@ App({
   initReminderManager: function() {
     try {
       this.reminderManager = new ReminderManager();
-      console.log('提醒管理器初始化完成');
     } catch (error) {
       console.error('提醒管理器初始化失败:', error);
     }
@@ -70,7 +64,6 @@ App({
   initNotificationManager: function() {
     try {
       this.notificationManager = new NotificationManager();
-      console.log('通知管理器初始化完成');
     } catch (error) {
       console.error('通知管理器初始化失败:', error);
     }
